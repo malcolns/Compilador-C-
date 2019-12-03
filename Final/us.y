@@ -2,25 +2,44 @@
     #include <stdio.h>
     #include <stdlib.h>
     #include <string.h>
+
     extern FILE *yyin;
+    extern FILE *yyout;
     extern int lineno;
     extern int yylex();
     void yyerror();
 %}
 
+%union
+{
+    int valor_inteiro;
+    //Tlista* item_lista;
+}
+
 /* Definições dos Tokens */
 
+%token <valor_inteiro> INT IF ELSE WHILE BREAK VOID RETURN
+%token <valor_inteiro> ADDOP MULOP DIVOP OROP ANDOP NOTOP EQUOP RELOP
+%token <valor_inteiro> LPAREN RPAREN LBRACK RBRACK LBRACE RBRACE SEMI COMMA ASSIGN
+%token <valor_inteiro> ID
+%token <valor_inteiro> ICONST
 
-%token INT IF ELSE WHILE BREAK VOID RETURN
-%token ADDOP MULOP DIVOP OROP ANDOP NOTOP EQUOP RELOP
-%token LPAREN RPAREN LBRACK RBRACK LBRACE RBRACE SEMI COMMA ASSIGN
-%token ID ICONST 
+%left LPAREN RPAREN LBRACK RBRACK
+%right NOTOP INCR REFER
+%left MULOP DIVOP
+%left ADDOP
+%left RELOP
+%left EQUOP
+%left OROP
+%left ANDOP
+%right ASSIGN
+%left COMMA
 
 %%
 
 /*adicionar Funções*/
 
-programa: declaracoes instrucoes RETURN SEMI funcoes;
+programa: declaracoes instrucoes RETURN SEMI funcoes_opcional;
 
 declaracoes: declaracoes declaracao | declaracao;
 
@@ -122,7 +141,7 @@ expressao:
 
 sinal: ADDOP | /* vazio */ ; 
 
-constante: ICONST;
+constante: ICONST {printf("%d\n", yylval.valor_inteiro);};
 
 atribuicao: variavel ASSIGN expressao SEMI ; 
 
@@ -139,6 +158,6 @@ int main()
 void yyerror(char * msg)
 {
   extern char* yytext;
-  cout << msg << ": " << yytext << yylval << yychar << endl;
+  printf("%s: %c %d %c\n",msg ,yytext, yylval, yychar);
 }
 

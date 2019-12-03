@@ -5,71 +5,70 @@
 	#include <stdlib.h>
 	#include <string.h>
 
-	#include "symtab.c"
+	//#include "symtab.c" // Tabela de Simbolos
+
+	#include "us.tab.h"
+
+	extern FILE *yyin;
+    extern FILE *yyout;
 
 	int lineno = 1; // initialize to 1
-
 	void ret_print(char *token_type);
-
 	void yyerror();
 %}
 
 %x COMMENT
 
-alpha 		[a-zA-Z]
-digit 		[0-9]
-alnum 		{alpha}|{digit}
-print		[ -~]
-
-ID 			{alpha}+{alnum}*
-NUM	    	"0"|[0-9]{digit}*
+ALPHA 		[a-z]
+DIGIT 		[0-9]
+ID 			{ALPHA}+
+ICONST	 	{DIGIT}+
 
 %%
 
 "//".*					{ printf("Comentário da linha %d\n", lineno); } 
 
-"/*"				   	{ printf("Comentário da linha %d ", lineno); BEGIN(ML_COMMENT); }
+"/*"				   	{ printf("Comentário da linha %d ", lineno); BEGIN(COMMENT); }
 <COMMENT>"*/" 		    { printf("até a linha %d\n", lineno); BEGIN(INITIAL); }
 <COMMENT>[^*\n]+		
 <COMMENT>"*"			
 <COMMENT>"\n"		    { lineno += 1; }
 
 
-"int"			    	{ ret_print("INT"); }
-"if"			    	{ ret_print("IF"); }
-"else"		        	{ ret_print("ELSE"); }
-"while"                 { ret_print("WHILE"); }
-"void"			        { ret_print("VOID"); }
-"return"        		{ ret_print("RETURN"); }
+
+"int"			    	{ return INT; }
+"if"			    	{ return IF; }
+"else"		        	{ return ELSE; }
+"while"                 { return WHILE; }
+"void"			        { return VOID; }
+"return"        		{ return RETURN; }
+"break"					{ return BREAK; }
+
+"+"|"-"      			{ return ADDOP; }
+"*"	     				{ return MULOP; }
+"/"	     				{ return DIVOP; }
+"||"         			{ return OROP; }
+"&&"	     			{ return ANDOP; }
+"!"	     				{ return NOTOP; }
+"=="|"!="    			{ return EQUOP; }
+">"|"<"|">="|"<="      	{ return RELOP; }
+
+"("				        { return LPAREN; }
+")"			        	{ return RPAREN; }
+"]"				        { return RBRACK; }
+"["				        { return LBRACK; }
+"{"				        { return LBRACE; }
+"}"				        { return RBRACE; }
+";"				        { return SEMI; }
+","				        { return COMMA; }
+"="				        { return ASSIGN; }
 
 
-"+" 					{ ret_print("ADD");   }
-"-"                     { ret_print("SUB");   }
-"*"						{ ret_print("MUL"); }
-"/"						{ ret_print("DIV"); }
-"=="    				{ ret_print("EQ"); }
-"!="                    { ret_print("DIF"); }
-">"             		{ ret_print("GREAT"); }
-"<"                     { ret_print("LESS"); }
-">="                    { ret_print("GEQ"); }
-"<="                    { ret_print("LESSEQ"); }
-"("				        { ret_print("LPAREN"); }
-")"			        	{ ret_print("RPAREN"); }
-"]"				        { ret_print("LBRACK"); }
-"["				        { ret_print("RBRACK"); }
-"{"				        { ret_print("LKEY"); }
-"}"				        { ret_print("RKEY"); }
-";"				        { ret_print("PTVIRG"); }
-"."				        { ret_print("PT"); }
-","				        { ret_print("VIRG"); }
-"="				        { ret_print("ATRIB"); }
-
-
-{ID} 			{ ret_print("ID"); }
-{NUM}    		{ ret_print("NUM"); }
+{ID}					{ /* insert(yytext, strlen(yytext), UNDEF, lineno); */ }
+{ICONST}   				{ yylval.valor_inteiro = atoi(yytext); return ICONST; }
 
 "\n"			{ lineno += 1; }
-[ \t\r\f]+	    /*ignora espaçoes em branco*/
+[ \t\r\f]+	    {/*ignora espaçoes em branco*/}
 
 .				{ yyerror("Caractere não reconhecido"); }
 
@@ -80,20 +79,19 @@ void ret_print(char *token_type){
 	printf("leitura: %s\ttoken: %s\tlineno: %d\n", yytext, token_type, lineno);
 }
 
-void yyerror(char *message){
-
-	printf("Erro: \"%s\" linha %d. Token = %s\n", message, lineno, yytext);
-
-	exit(1);
+void yyerror ()
+{
+  fprintf(stderr, "Syntax error at line %d\n", lineno);
+  exit(1);
 }
 
-int main(int argc, char *argv[]){
+int main (int argc, char *argv[]){
 
-	yyin = fopen("input.txt", "r"); /*Abertura arquivo de entrada*/
-
-	yylex(); /*Chamada do analizador léxico*/
-
-	fclose(yyin); /*Fechamento do arquivo de entrada*/
-
-	return 0;
+    
+    int flag;
+    yyin = fopen(argv[1], "r");
+    flag = yyparse();
+    fclose(yyin);
+    
+    return flag;
 }
