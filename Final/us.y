@@ -141,23 +141,26 @@ expressao:
 
 sinal: ADDOP | /* vazio */ ; 
 
-constante: ICONST {printf("%d\n", yylval.valor_inteiro);};
+constante: ICONST {printf("---%d---\n", yylval.valor_inteiro);};
 
 atribuicao: variavel ASSIGN expressao SEMI ; 
 
 
 %%
-
-int main()
+/*
+void yyerror ()
 {
-  cout << "\nParser em execução...\n";
-  abrirArq();
-  return yyparse();
+  fprintf(stderr, "Syntax error at line %d\n", lineno);
+  exit(1);
 }
+*/
+int main (int argc, char *argv[]){
 
-void yyerror(char * msg)
-{
-  extern char* yytext;
-  printf("%s: %c %d %c\n",msg ,yytext, yylval, yychar);
+    // parsing
+    int flag;
+    yyin = fopen(argv[1], "r");
+    flag = yyparse();
+    fclose(yyin);
+    
+    return flag;
 }
-

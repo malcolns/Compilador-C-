@@ -75,23 +75,18 @@ ICONST	 	{DIGIT}+
 %%
 
 void ret_print(char *token_type){
-
-	printf("leitura: %s\ttoken: %s\tlineno: %d\n", yytext, token_type, lineno);
+   printf("yytext: %s\ttoken: %s\tlineno: %d\n", yytext, token_type, lineno);
 }
 
-void yyerror ()
-{
-  fprintf(stderr, "Syntax error at line %d\n", lineno);
-  exit(1);
+void yyerror(char *message){
+   printf("Error: \"%s\" in line %d. Token = %s\n", message, lineno, yytext);
+   exit(1);
 }
-
-int main (int argc, char *argv[]){
-
-    
-    int flag;
-    yyin = fopen(argv[1], "r");
-    flag = yyparse();
-    fclose(yyin);
-    
-    return flag;
+/*
+int main(int argc, char *argv[]){
+   yyin = fopen(argv[1], "r");
+   yylex();
+   fclose(yyin);
+   return 0;
 }
+*/
