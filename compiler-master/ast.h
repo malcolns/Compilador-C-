@@ -1,4 +1,3 @@
-/* ---------------------NODE TYPES-------------------------- */
 
 typedef enum Node_Type {
 	BASIC_NODE,  
@@ -28,8 +27,6 @@ typedef enum Node_Type {
 	RETURN_NODE,  
 }Node_Type;
 
-/* --------------------OPERATOR TYPES----------------------- */
-
 typedef enum Arithm_op{
 	ADD,  // + operator
 	SUB,  // - operator
@@ -50,8 +47,6 @@ typedef enum Equ_op{
 	EQUAL,    // == operator
 	NOT_EQUAL // != operator
 }Equ_op;
-
-/* -----------------------AST NODES------------------------- */
 
 /* The basic node */
 typedef struct AST_Node{

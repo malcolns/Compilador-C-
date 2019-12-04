@@ -3,7 +3,6 @@
 	#include "symtab.c"
 	#include "ast.h"
 	#include "ast.c"
-//	#include "code_generation.c"
 	#include <stdio.h>
 	#include <stdlib.h>
 	#include <string.h>
