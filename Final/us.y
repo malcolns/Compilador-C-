@@ -1,4 +1,5 @@
 %{
+    #include "symtab.c"
     #include <stdio.h>
     #include <stdlib.h>
     #include <string.h>
@@ -8,12 +9,14 @@
     extern int lineno;
     extern int yylex();
     void yyerror();
+
+    //typedef list_t Tlista;
 %}
 
 %union
 {
     int valor_inteiro;
-    //Tlista* item_lista;
+    list_t* item_lista;
 }
 
 /* Definições dos Tokens */
@@ -21,7 +24,7 @@
 %token <valor_inteiro> INT IF ELSE WHILE BREAK VOID RETURN
 %token <valor_inteiro> ADDOP MULOP DIVOP OROP ANDOP NOTOP EQUOP RELOP
 %token <valor_inteiro> LPAREN RPAREN LBRACK RBRACK LBRACE RBRACE SEMI COMMA ASSIGN
-%token <valor_inteiro> ID
+%token <item_lista> ID
 %token <valor_inteiro> ICONST
 
 %left LPAREN RPAREN LBRACK RBRACK
@@ -35,11 +38,16 @@
 %right ASSIGN
 %left COMMA
 
+%start programa
+
 %%
 
-/*adicionar Funções*/
+
+/* Inicio -------------------------------------------------------------------------------------- */
 
 programa: declaracoes instrucoes RETURN SEMI funcoes_opcional;
+
+/* Declarações --------------------------------------------------------------------------------- */
 
 declaracoes: declaracoes declaracao | declaracao;
 
@@ -71,9 +79,7 @@ funcoes: funcoes funcao | funcao;
 
 funcao: funcao_cabecalho funcao_bloco;
 
-funcao_cabecalho: tipo_retorno ID LPAREN parametros_opcional RPAREN;
-
-tipo_retorno: tipo;
+funcao_cabecalho: tipo ID LPAREN parametros_opcional RPAREN;
 
 funcao_bloco: LBRACE declaracoes_opcional instucoes_opcional return_opcional RBRACE;
 
@@ -99,7 +105,7 @@ instrucoes: instrucoes instrucao | instrucao;
 
 instucoes_opcional: instrucoes | /* vazio */;
 
-instrucao: if_instrucao | while_instrucao | atribuicao | BREAK SEMI | funcao_chamada SEMI;
+instrucao: if_instrucao | while_instrucao | atribuicao SEMI | BREAK SEMI | funcao_chamada SEMI;
 
 /* IF, ELSE IF, ELSE --------------------------------------------------------------------------- */
 
@@ -112,6 +118,7 @@ parte_elseif:
     parte_elseif ELSE IF LPAREN expressao RPAREN bloco |
     ELSE IF LPAREN expressao RPAREN bloco 
 ; 
+
 parte_else: ELSE bloco | /* vazio */ ; 
 
 /* While --------------------------------------------------------------------------------------- */
@@ -120,7 +127,7 @@ while_instrucao: WHILE LPAREN expressao RPAREN bloco ;
 
 /* Escopo -------------------------------------------------------------------------------------- */
 
-bloco: instrucao SEMI | LBRACE instrucoes RBRACE ;
+bloco: LBRACE instrucoes RBRACE ;
 
 /* Expressão ----------------------------------------------------------------------------------- */
 
@@ -141,23 +148,34 @@ expressao:
 
 sinal: ADDOP | /* vazio */ ; 
 
-constante: ICONST {printf("%d\n", yylval.valor_inteiro);};
+constante: ICONST;
 
-atribuicao: variavel ASSIGN expressao SEMI ; 
+atribuicao: variavel ASSIGN expressao; 
 
 
 %%
 
-int main()
+void yyerror ()
 {
-  cout << "\nParser em execução...\n";
-  abrirArq();
-  return yyparse();
+  fprintf(stderr, "Syntax error na linha %d\n", lineno);
+  exit(1);
 }
 
-void yyerror(char * msg)
-{
-  extern char* yytext;
-  printf("%s: %c %d %c\n",msg ,yytext, yylval, yychar);
-}
+int main (int argc, char *argv[]){
 
+    // parsing
+    int flag;
+    yyin = fopen(argv[1], "r");
+    flag = yyparse();
+    fclose(yyin);
+    
+    printf("Fim do Parser!");    
+
+	// symbol table dump
+    /*
+	yyout = fopen("symtab_dump.out", "w");
+	symtab_dump(yyout);
+	fclose(yyout);
+    */
+    return flag;
+}
