@@ -49,43 +49,36 @@ extern int yydebug;
 # define YYTOKENTYPE
   enum yytokentype
   {
-    CHAR = 258,
-    INT = 259,
-    FLOAT = 260,
-    DOUBLE = 261,
-    IF = 262,
-    ELSE = 263,
-    WHILE = 264,
-    FOR = 265,
-    CONTINUE = 266,
-    BREAK = 267,
-    VOID = 268,
-    RETURN = 269,
-    ADDOP = 270,
-    MULOP = 271,
-    DIVOP = 272,
-    INCR = 273,
-    OROP = 274,
-    ANDOP = 275,
-    NOTOP = 276,
-    EQUOP = 277,
-    RELOP = 278,
-    LPAREN = 279,
-    RPAREN = 280,
-    LBRACK = 281,
-    RBRACK = 282,
-    LBRACE = 283,
-    RBRACE = 284,
-    SEMI = 285,
-    COMMA = 286,
-    ASSIGN = 287,
-    REFER = 288,
-    ID = 289,
-    ICONST = 290,
-    FCONST = 291,
-    CCONST = 292,
-    STRING = 293,
-    MINUS = 294
+    INT = 258,
+    IF = 259,
+    ELSE = 260,
+    WHILE = 261,
+    VOID = 262,
+    RETURN = 263,
+    CONTINUE = 264,
+    BREAK = 265,
+    MINUS = 266,
+    STRING = 267,
+    ADDOP = 268,
+    MULOP = 269,
+    OROP = 270,
+    DIVOP = 271,
+    ANDOP = 272,
+    NOTOP = 273,
+    EQUOP = 274,
+    RELOP = 275,
+    LPAREN = 276,
+    RPAREN = 277,
+    LBRACK = 278,
+    RBRACK = 279,
+    LBRACE = 280,
+    RBRACE = 281,
+    SEMI = 282,
+    COMMA = 283,
+    ASSIGN = 284,
+    REFER = 285,
+    ID = 286,
+    ICONST = 287
   };
 #endif
 
@@ -93,7 +86,7 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 36 "parser.y"
+#line 47 "parser.y"
 
 	// different types of values
 	Value val;   
@@ -112,7 +105,7 @@ union YYSTYPE
 	// for parameters
 	Param par;
 
-#line 116 "parser.tab.h"
+#line 109 "parser.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

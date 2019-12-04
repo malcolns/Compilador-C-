@@ -3,7 +3,7 @@
 	#include "symtab.c"
 	#include "ast.h"
 	#include "ast.c"
-	#include "code_generation.c"
+//	#include "code_generation.c"
 	#include <stdio.h>
 	#include <stdlib.h>
 	#include <string.h>
@@ -64,7 +64,7 @@
 }
 
 /* token definition */
-%token<val> INT IF ELSE WHILE VOID RETURN
+%token<val> INT IF ELSE WHILE VOID RETURN CONTINUE BREAK MINUS STRING
 %token<val> ADDOP MULOP OROP DIVOP ANDOP NOTOP EQUOP RELOP
 %token<val> LPAREN RPAREN LBRACK RBRACK LBRACE RBRACE SEMI COMMA ASSIGN REFER
 %token <symtab_item> ID
@@ -93,7 +93,7 @@
 %type <node> statement assigment
 %type <node> statements tail
 %type <node> if_statement else_if optional_else
-%type <node> for_statement while_statement
+%type <node> while_statement
 %type <node> functions_optional functions function
 %type <node> parameters_optional parameters
 %type <par>  parameter
@@ -179,7 +179,6 @@ variable: ID { $$ = $1; }
 	}
 ;
 
-pointer: MULOP ; 
 
 array: 
 	LBRACK expression RBRACK 
@@ -317,7 +316,6 @@ optional_else:
 	}
 ;
 
-
 while_statement: WHILE LPAREN expression RPAREN tail
 {
 	$$ = new_ast_while_node($3, $5);
@@ -342,38 +340,6 @@ expression:
 	| expression DIVOP expression
 	{
 		$$ = new_ast_arithm_node(DIV, $1, $3);
-	}
-	| ID INCR
-	{
-		/* increment */
-		if($2.ival == INC){
-			$$ = new_ast_incr_node($1, 0, 0);
-		}
-		else{
-			$$ = new_ast_incr_node($1, 1, 0);
-		}	
-	}
-	| INCR ID
-	{
-		/* increment */
-		if($1.ival == INC){
-			$$ = new_ast_incr_node($2, 0, 1);
-		}
-		else{
-			$$ = new_ast_incr_node($2, 1, 1);
-		}
-	}
-	| expression OROP expression
-	{
-		$$ = new_ast_bool_node(OR, $1, $3);
-	}
-	| expression ANDOP expression
-	{
-		$$ = new_ast_bool_node(AND, $1, $3);
-	}
-	| NOTOP expression
-	{
-	    $$ = new_ast_bool_node(NOT, $2, NULL);
 	}
 	| expression EQUOP expression
 	{
@@ -409,14 +375,6 @@ expression:
 			switch(temp->const_type){
 				case INT_TYPE:
 					temp->val.ival *= -1;
-					break;
-				case REAL_TYPE:
-					temp->val.fval *= -1;
-					break;
-				case CHAR_TYPE:
-					/* sign before char error */
-					fprintf(stderr, "Error having sign before character constant!\n");
-					exit(1);
 					break;
 			}
 			
@@ -678,9 +636,6 @@ parameter : { declare = 1; } type variable
 	if($3->st_type == UNDEF){ /* "simple" type */
 		set_type($3->st_name, $2, UNDEF); 
 	}
-	else if($3->st_type == POINTER_TYPE){ /* pointer */
-		set_type($3->st_name, POINTER_TYPE, $2);
-	}
 	else if($3->st_type == ARRAY_TYPE){ /* array  */
 		set_type($3->st_name, ARRAY_TYPE, $2);
 	}
@@ -836,8 +791,8 @@ int main (int argc, char *argv[]){
 	fclose(yyout);
 	
 	// code generation
-	printf("\nGenerating code...\n");
-	generate_code();
+	//printf("\nGenerating code...\n");
+	//generate_code();
 	
 	return flag;
 }

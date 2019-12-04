@@ -136,40 +136,6 @@ AST_Node *new_ast_elsif_node(AST_Node *condition, AST_Node *elsif_branch){
 	return (struct AST_Node *) v;
 }
 
-AST_Node *new_ast_for_node(AST_Node *initialize, AST_Node *condition, AST_Node *increment, AST_Node *for_branch){
-	// allocate memory
-	AST_Node_For *v = malloc (sizeof (AST_Node_For));
-	
-	// set entries
-	v->type = FOR_NODE;
-	v->initialize = initialize;
-	v->condition = condition;
-	v->increment = increment;
-	v->for_branch = for_branch;
-	
-	// return type-casted result
-	return (struct AST_Node *) v;
-}
-
-void set_loop_counter(AST_Node *node){
-	/* type-cast to for node */
-	AST_Node_For *for_node = (AST_Node_For *) node;
-	
-	/* find the counter */
-	AST_Node_Assign *assign_node = (AST_Node_Assign *) for_node->initialize;
-	for_node->counter = assign_node->entry;
-	
-	/* check if the same one occurs in increment! */
-	AST_Node_Incr *incr_node = (AST_Node_Incr *) for_node->increment;
-	if( strcmp(incr_node->entry->st_name, assign_node->entry->st_name) ){
-		fprintf(stderr, "Variable used in init and incr of for are not the same!\n");
-		exit(1);
-	}	
-	
-	/* type-cast back to AST_Node */
-	node = (AST_Node *) for_node;
-}
-
 AST_Node *new_ast_while_node(AST_Node *condition, AST_Node *while_branch){
 	// allocate memory
 	AST_Node_While *v = malloc (sizeof (AST_Node_While));
@@ -204,20 +170,6 @@ AST_Node *new_ast_simple_node(int statement_type){
 	// set entries
 	v->type = SIMPLE_NODE;
 	v->statement_type = statement_type;
-	
-	// return type-casted result
-	return (struct AST_Node *) v;
-}
- 
-AST_Node *new_ast_incr_node(list_t *entry, int incr_type, int pf_type){
-	// allocate memory
-	AST_Node_Incr *v = malloc (sizeof (AST_Node_Incr));
-	
-	// set entries
-	v->type = INCR_NODE;
-	v->entry = entry;
-	v->incr_type = incr_type;
-	v->pf_type = pf_type;
 	
 	// return type-casted result
 	return (struct AST_Node *) v;
@@ -288,35 +240,6 @@ AST_Node *new_ast_arithm_node(enum Arithm_op op, AST_Node *left, AST_Node *right
 	return (struct AST_Node *) v;
 }
 
-AST_Node *new_ast_bool_node(enum Bool_op op, AST_Node *left, AST_Node *right){
-	// allocate memory
-	AST_Node_Bool *v = malloc (sizeof (AST_Node_Bool));
-	
-	// set entries
-	v->type = BOOL_NODE;
-	v->op = op;
-	v->left = left;
-	v->right = right;
-	
-	// set data type
-	if(v->op != NOT){ /* AND or OR */
-		v->data_type = get_result_type(
-			expression_data_type(left),  /* data type of left expression */
-			expression_data_type(right), /* data type of right expression */
-			BOOL_OP                      /* operation type */
-		);	
-	}
-	else{ /* NOT */
-		v->data_type = get_result_type(
-			expression_data_type(left), /* data type of left expression */
-			UNDEF,                      /* there is no right expression */
-			NOT_OP                      /* operation type */
-		);	
-	}
-	
-	// return type-casted result
-	return (struct AST_Node *) v;
-}
 
 AST_Node *new_ast_rel_node(enum Rel_op op, AST_Node *left, AST_Node *right){
 	// allocate memory
@@ -376,8 +299,6 @@ AST_Node *new_ast_ref_node(list_t *entry, int ref){
 int expression_data_type(AST_Node *node){
 	/* temp nodes */
 	AST_Node_Arithm *temp_arithm;
-	AST_Node_Incr *temp_incr;
-	AST_Node_Bool *temp_bool;
 	AST_Node_Rel *temp_rel;
 	AST_Node_Equ *temp_equ;
 	AST_Node_Ref *temp_ref;
@@ -398,31 +319,7 @@ int expression_data_type(AST_Node *node){
 			
 			return temp_arithm->data_type; 
 			break;
-		case INCR_NODE:   /* special case of increment */
-			temp_incr = (AST_Node_Incr *) node;
-			return temp_incr->entry->st_type;
-			break;
-		case BOOL_NODE:   /* boolean expression */
-			temp_bool = (AST_Node_Bool *) node;
-			
-			/* set datatype again */
-			if(temp_bool->op != NOT){ /* AND or OR */
-				temp_bool->data_type = get_result_type(
-					expression_data_type(temp_bool->left),  /* data type of left expression */
-					expression_data_type(temp_bool->right), /* data type of right expression */
-					BOOL_OP                      /* operation type */
-				);	
-			}
-			else{ /* NOT */
-				temp_bool->data_type = get_result_type(
-					expression_data_type(temp_bool->left), /* data type of left expression */
-					UNDEF,                      /* there is no right expression */
-					NOT_OP                      /* operation type */
-				);	
-			}
-			
-			return temp_bool->data_type;
-			break;
+
 		case REL_NODE:    /* relational expression */
 			temp_rel = (AST_Node_Rel *) node;
 			
@@ -435,6 +332,7 @@ int expression_data_type(AST_Node *node){
 			
 			return temp_rel->data_type;
 			break;
+
 		case EQU_NODE:    /* equality expression */
 			temp_equ = (AST_Node_Equ *) node;
 			
@@ -451,15 +349,12 @@ int expression_data_type(AST_Node *node){
 			temp_ref = (AST_Node_Ref *) node;
 			/* if "simple" type */
 			int type = temp_ref->entry->st_type;
-			if(type == INT_TYPE	|| type == REAL_TYPE || type == CHAR_TYPE){
+			if(type == INT_TYPE){
 				return temp_ref->entry->st_type;
 			}
 			/* if array */
 			else if(type == ARRAY_TYPE){
 				return temp_ref->entry->inf_type;
-			}
-			else if(type == POINTER_TYPE){
-				return INT_TYPE;
 			}
 			break;
 		case CONST_NODE:  /* constant */
@@ -488,8 +383,6 @@ int expression_data_type(AST_Node *node){
 int getGraphIndex(AST_Node *node){
 	/* temp nodes */
 	AST_Node_Arithm *temp_arithm;
-	AST_Node_Incr *temp_incr;
-	AST_Node_Bool *temp_bool;
 	AST_Node_Rel *temp_rel;
 	AST_Node_Equ *temp_equ;
 	AST_Node_Ref *temp_ref;
@@ -501,15 +394,6 @@ int getGraphIndex(AST_Node *node){
 			temp_arithm = (AST_Node_Arithm *) node;
 			
 			return temp_arithm->g_index; 
-			break;
-		case INCR_NODE:   /* special case of increment */
-			temp_incr = (AST_Node_Incr *) node;
-			return temp_incr->entry->g_index;
-			break;
-		case BOOL_NODE:   /* boolean expression */
-			temp_bool = (AST_Node_Bool *) node;
-			
-			return temp_bool->g_index;
 			break;
 		case REL_NODE:    /* relational expression */
 			temp_rel = (AST_Node_Rel *) node;
@@ -646,14 +530,11 @@ void ast_print_node(AST_Node *node){
 	AST_Node_Const *temp_const;
 	AST_Node_Statements *temp_statements;
 	AST_Node_If *temp_if;
-	AST_Node_For *temp_for;
 	AST_Node_Assign *temp_assign;
 	AST_Node_Simple *temp_simple;
-	AST_Node_Incr *temp_incr;
 	AST_Node_Func_Call *temp_func_call;
 	AST_Node_Call_Params *temp_call_params;
 	AST_Node_Arithm *temp_arithm;
-	AST_Node_Bool *temp_bool;
 	AST_Node_Rel *temp_rel;
 	AST_Node_Equ *temp_equ;
 	AST_Node_Ref *temp_ref;
@@ -683,15 +564,6 @@ void ast_print_node(AST_Node *node){
 				case INT_TYPE:
 					printf("%d\n", temp_const->val.ival);
 					break;
-				case REAL_TYPE:
-					printf("%.2f\n", temp_const->val.fval);
-					break;
-				case CHAR_TYPE:
-					printf("%c\n",  temp_const->val.cval);
-					break;
-				case STR_TYPE:
-					printf("%s\n",  temp_const->val.sval);
-					break;
 			}
 			break;
 		case STATEMENTS:
@@ -711,10 +583,6 @@ void ast_print_node(AST_Node *node){
 		case ELSIF_NODE:
 			printf("Elsif Node\n");
 			break;
-		case FOR_NODE:
-			temp_for = (struct AST_Node_For *) node;
-			printf("For Node with loop counter %s\n", temp_for->counter->st_name);
-			break;
 		case WHILE_NODE:
 			printf("While Node\n");
 			break;
@@ -725,11 +593,6 @@ void ast_print_node(AST_Node *node){
 		case SIMPLE_NODE:
 			temp_simple = (struct AST_Node_Simple *) node;
 			printf("Simple Node of statement %d\n", temp_simple->statement_type);
-			break;
-		case INCR_NODE:
-			temp_incr = (struct AST_Node_Incr *) node;
-			printf("Increment Node of entry %s being %d %d\n", 
-				temp_incr->entry->st_name, temp_incr->incr_type, temp_incr->pf_type);
 			break;
 		case FUNC_CALL:
 			temp_func_call = (struct AST_Node_Func_Call *) node;
@@ -743,10 +606,6 @@ void ast_print_node(AST_Node *node){
 		case ARITHM_NODE:
 			temp_arithm = (struct AST_Node_Arithm *) node;
 			printf("Arithmetic Node of operator %d with result type %d\n", temp_arithm->op, temp_arithm->data_type);
-			break;
-		case BOOL_NODE:
-			temp_bool = (struct AST_Node_Bool *) node;
-			printf("Boolean Node of operator %d\n", temp_bool->op);
 			break;
 		case REL_NODE:
 			temp_rel = (struct AST_Node_Rel *) node;
@@ -802,7 +661,7 @@ void ast_traversal(AST_Node *node){
 	}
 	
 	/* left and right child cases */
-	if(node->type == BASIC_NODE || node->type == ARITHM_NODE || node->type == BOOL_NODE
+	if(node->type == BASIC_NODE || node->type == ARITHM_NODE
 	|| node->type == REL_NODE || node->type == EQU_NODE){
 		ast_traversal(node->left);
 		ast_traversal(node->right);
@@ -854,19 +713,6 @@ void ast_traversal(AST_Node *node){
 		ast_print_node(node);
 		ast_traversal(temp_elsif->condition);
 		ast_traversal(temp_elsif->elsif_branch);
-	}
-	/* for case */
-	else if(node->type == FOR_NODE){
-		AST_Node_For *temp_for = (struct AST_Node_For *) node;
-		ast_print_node(node);
-		printf("Initialize:\n");
-		ast_traversal(temp_for->initialize);
-		printf("Condition:\n");
-		ast_traversal(temp_for->condition);
-		printf("Increment:\n");
-		ast_traversal(temp_for->increment);
-		printf("For branch:\n");
-		ast_traversal(temp_for->for_branch);
 	}
 	/* while case */
 	else if(node->type == WHILE_NODE){

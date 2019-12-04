@@ -217,10 +217,6 @@ void symtab_dump(FILE * of){  /* dump file */
 
 			if (l->st_type == INT_TYPE)                fprintf(of,"%-15s","int");
 
-			else if (l->st_type == REAL_TYPE)          fprintf(of,"%-15s","real");
-
-			else if (l->st_type == CHAR_TYPE)          fprintf(of,"%-15s","char");
-
 			else if (l->st_type == VOID_TYPE)          fprintf(of,"%-15s","void");
 
 			else if (l->st_type == ARRAY_TYPE){
@@ -229,36 +225,14 @@ void symtab_dump(FILE * of){  /* dump file */
 
 				if (l->inf_type == INT_TYPE) 		   fprintf(of,"%-4s","int");
 
-				else if (l->inf_type  == REAL_TYPE)    fprintf(of,"%-4s","real");
-
-				else if (l->inf_type  == CHAR_TYPE)    fprintf(of,"%-4s","char");
-
 				else fprintf(of,"%-4s","undef");
 			}
 
-			else if (l->st_type == POINTER_TYPE){
-
-				fprintf(of,"pointer to ");
-
-				if (l->inf_type == INT_TYPE) 		   fprintf(of,"%-4s","int");
-
-				else if (l->inf_type  == REAL_TYPE)    fprintf(of,"%-4s","real");
-
-				else if (l->inf_type  == CHAR_TYPE)    fprintf(of,"%-4s","char");
-
-				else if (l->inf_type  == VOID_TYPE)    fprintf(of,"%-4s","void");
-
-				else fprintf(of,"%-4s","undef");
-			}
 			else if (l->st_type == FUNCTION_TYPE){
 
 				fprintf(of,"func ret ");
 
 				if (l->inf_type == INT_TYPE) 		   fprintf(of,"%-6s","int");
-
-				else if (l->inf_type  == REAL_TYPE)    fprintf(of,"%-6s","real");
-
-				else if (l->inf_type  == CHAR_TYPE)	   fprintf(of,"%-6s","char");
 
 				else if (l->inf_type  == VOID_TYPE)	   fprintf(of,"%-6s","void");
 
@@ -304,7 +278,7 @@ int get_type(char *name){ // get the type of an entry
 	list_t *l = lookup(name);
 	
 	/* if "simple" type */
-	if(l->st_type == INT_TYPE || l->st_type == REAL_TYPE || l->st_type == CHAR_TYPE){
+	if(l->st_type == INT_TYPE){
 		return l->st_type;
 	}
 	/* if array, pointer or function */

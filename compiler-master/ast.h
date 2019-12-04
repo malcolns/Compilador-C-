@@ -1,34 +1,31 @@
 /* ---------------------NODE TYPES-------------------------- */
 
 typedef enum Node_Type {
-	BASIC_NODE,   //  0 - no special usage (for roots only)
+	BASIC_NODE,  
+	CONST_NODE,
 	// declarations
-	DECLARATIONS, //  1 - declarations
-	DECL_NODE,    //  2 - declaration
-	CONST_NODE,   //  3 - constant
+	DECLARATIONS, 
+	DECL_NODE,    
 	// statements
-	STATEMENTS,   //  4 - statements
-	IF_NODE,      //  5 - if statement
-	ELSIF_NODE,   //  6 - else if branch
-	FOR_NODE,     //  7 - for statement
-	WHILE_NODE,   //  8 - while statement
-	ASSIGN_NODE,  //  9 - assigment
-	SIMPLE_NODE,  // 10 - continue or break statement
-	INCR_NODE,    // 11 - increment statement (non-expression one)
-	FUNC_CALL,    // 12 - function call
-	CALL_PARAMS,  // 13 - function call parameters
-	// expressions
-	ARITHM_NODE,  // 14 - arithmetic expression
-	BOOL_NODE,    // 15 - boolean expression
-	REL_NODE,     // 16 - relational expression
-	EQU_NODE,     // 17 - equality expression
-	REF_NODE,	  // 18 - identifier in expression
-	// functions
-	FUNC_DECLS,   // 19 - function declarations
-	FUNC_DECL,    // 20 - function declaration
-	RET_TYPE,     // 21 - function return type
-	DECL_PARAMS,  // 22 - function parameters
-	RETURN_NODE,  // 23 - return statement of functions
+	STATEMENTS,   
+	IF_NODE,      
+	ELSIF_NODE,    
+	WHILE_NODE,   
+	ASSIGN_NODE,  
+	SIMPLE_NODE,  
+	FUNC_CALL,    
+	CALL_PARAMS,  
+	// expression
+	ARITHM_NODE,  
+	REL_NODE,     
+	EQU_NODE,     
+	REF_NODE,	  
+	// function
+	FUNC_DECLS,   
+	FUNC_DECL,    
+	RET_TYPE,     
+	DECL_PARAMS,  
+	RETURN_NODE,  
 }Node_Type;
 
 /* --------------------OPERATOR TYPES----------------------- */
@@ -38,15 +35,9 @@ typedef enum Arithm_op{
 	SUB,  // - operator
 	MUL,  // * operator
 	DIV , // / operator
-	INC, // ++ operator
 	DEC, // -- operator
 }Arithm_op;
 
-typedef enum Bool_op{
-	OR,  // || operator
-	AND, // && operator
-	NOT  // ! operator
-}Bool_op;
 
 typedef enum Rel_op{
 	GREATER,        // > operator
@@ -136,24 +127,6 @@ typedef struct AST_Node_Elsif{
 	struct AST_Node *elsif_branch;
 }AST_Node_Elsif;
 
-typedef struct AST_Node_For{
-	enum Node_Type type; // node type
-	
-	// initialization
-	struct AST_Node *initialize;
-	
-	// condition
-	struct AST_Node *condition;
-	
-	// incrementation
-	struct AST_Node *increment;
-	
-	// branch
-	struct AST_Node *for_branch;
-	
-	// loop counter
-	list_t *counter;
-}AST_Node_For;
 
 typedef struct AST_Node_While{
 	enum Node_Type type; // node type
@@ -236,22 +209,6 @@ typedef struct AST_Node_Arithm{
 	/* register assignment stuff */
 	int g_index;
 }AST_Node_Arithm;
-
-typedef struct AST_Node_Bool{
-	enum Node_Type type; // node type
-	
-	struct AST_Node *left;  // left child
-	struct AST_Node *right; // right child
-	
-	// data type of result
-	int data_type;
-	
-	// operator
-	enum Bool_op op;
-	
-	/* register assignment stuff */
-	int g_index;
-}AST_Node_Bool;
 
 typedef struct AST_Node_Rel{
 	enum Node_Type type; // node type
@@ -370,8 +327,6 @@ AST_Node *new_statements_node(AST_Node **statements, int statement_count, AST_No
 AST_Node *new_ast_if_node(AST_Node *condition, AST_Node *if_branch, AST_Node **elsif_branches, 
 	int elseif_count, AST_Node *else_branch);
 AST_Node *new_ast_elsif_node(AST_Node *condition, AST_Node *elsif_branch);
-AST_Node *new_ast_for_node(AST_Node *initialize, AST_Node *condition, AST_Node *increment, AST_Node *for_branch);
-void set_loop_counter(AST_Node *node);
 AST_Node *new_ast_while_node(AST_Node *condition, AST_Node *while_branch);
 AST_Node *new_ast_assign_node(list_t *entry, int ref, AST_Node *assign_val);
 AST_Node *new_ast_simple_node(int statement_type);							 // continue or break
@@ -381,7 +336,6 @@ AST_Node *new_ast_call_params_node(AST_Node **params, int num_of_pars, AST_Node 
 
 /* Expressions */
 AST_Node *new_ast_arithm_node(enum Arithm_op op, AST_Node *left, AST_Node *right);
-AST_Node *new_ast_bool_node(enum Bool_op op, AST_Node *left, AST_Node *right);
 AST_Node *new_ast_rel_node(enum Rel_op op, AST_Node *left, AST_Node *right);
 AST_Node *new_ast_equ_node(enum Equ_op op, AST_Node *left, AST_Node *right);
 AST_Node *new_ast_ref_node(list_t *entry, int ref);

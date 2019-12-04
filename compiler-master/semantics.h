@@ -3,6 +3,8 @@
 #define INT_TYPE 1
 #define FUNCTION_TYPE 2
 #define VOID_TYPE 3
+#define ARRAY_TYPE 4
+#define STR_TYPE 5
 
 /* operator types */
 #define NONE 0		// to check types only - assignment, parameter
