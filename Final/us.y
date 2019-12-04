@@ -89,9 +89,11 @@ parametros_opcional: parametros | /* vazio */;
 
 parametros: parametros COMMA  parametro | parametro;
 
-parametro: tipo variavel;
+parametro: tipo_NVoid variavel_parametro;
 
-    /*Tem potencial pra ser reduntante*/
+variavel_parametro: ID | ID colchetes_parametro | ID LBRACK RBRACK ;
+
+colchetes_parametro: colchetes_parametro LBRACE ICONST RBRACK | LBRACE ICONST RBRACK;
 
 funcao_chamada: ID LPAREN parametros_chamada RPAREN;
 
@@ -169,7 +171,7 @@ int main (int argc, char *argv[]){
     flag = yyparse();
     fclose(yyin);
     
-    printf("Fim do Parser!");    
+    printf("Fim do Parser!!!\n");    
 
 	// symbol table dump
     /*
