@@ -13,7 +13,7 @@
 	
 	int lineno = 1;
 	void ret_print(char *token_type);
-	void yyerror();
+	//void yyerror(char const *s);
 %}
 
 %x COMMENT
@@ -76,8 +76,9 @@ ICONST		"0"|[0-9]{digit}*
 {ICONST} 		{ yylval.val.ival = atoi(yytext); return ICONST; }
 
 "\n"			{ lineno += 1; }
-[ \t\r\f]+		/* eat up whitespace */
+[ \t\r\f]+		
 
-.				{ yyerror("Unrecognized character"); }
+.				{ yyerror("LEXICO"); }
 
 %%
+

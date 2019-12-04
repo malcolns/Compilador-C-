@@ -6,6 +6,7 @@
 	#include <stdio.h>
 	#include <stdlib.h>
 	#include <string.h>
+	#include "aux.c"
 
 	extern FILE *yyin;
 
@@ -15,7 +16,7 @@
 
 	extern int yylex();
 
-	void yyerror();
+	//void yyerror(char const *s);
 	
 	// for declarations
 	void add_to_names(list_t *entry);
@@ -323,7 +324,7 @@ while_statement: WHILE LPAREN expression RPAREN tail
 
 tail: LBRACE statements RBRACE
 { 
-	$$ = $2; /* just pass information */
+	$$ = $2;
 }
 ;
 
@@ -350,19 +351,18 @@ expression:
 	}
 	| LPAREN expression RPAREN
 	{
-		$$ = $2; /* just pass information */
+		$$ = $2; 
 	}
 	| var_ref
 	{ 
-		$$ = $1; /* just pass information */
+		$$ = $1;
 	}
 	| constant
 	{
-		$$ = $1; /* no sign */
+		$$ = $1; 
 	}
 	| ADDOP constant %prec MINUS
 	{
-		/* plus sign error */
 		if($1.ival == ADD){
 			fprintf(stderr, "Error having plus as a sign!\n");
 			exit(1);
@@ -370,7 +370,6 @@ expression:
 		else{
 			AST_Node_Const *temp = (AST_Node_Const*) $2;
 		
-			/* inverse value depending on the constant type */
 			switch(temp->const_type){
 				case INT_TYPE:
 					temp->val.ival *= -1;
@@ -382,7 +381,7 @@ expression:
 	}
 	| function_call
 	{
-		$$ = $1; /* just pass information */
+		$$ = $1;
 	}
 ;
 
@@ -395,15 +394,12 @@ assigment: var_ref ASSIGN expression
 	AST_Node_Ref *temp = (AST_Node_Ref*) $1;
 	$$ = new_ast_assign_node(temp->entry, temp->ref, $3);
 	
-	/* find datatypes */
+
 	int type1 = get_type(temp->entry->st_name);
 	int type2 = expression_data_type($3);
 	
-	/* the last function will give us information about revisits */
-	
-	/* contains revisit => add assignment-check to revisit queue */
 	if(cont_revisit == 1){	
-		/* search if entry exists */
+		
 		revisit_queue *q = search_queue(temp->entry->st_name);
 		if(q == NULL){
 			add_to_queue(temp->entry, temp->entry->st_name, ASSIGN_CHECK);
@@ -680,12 +676,6 @@ return_optional:
 ;
 
 %%
-
-void yyerror ()
-{
-  fprintf(stderr, "Syntax error at line %d\n", lineno);
-  exit(1);
-}
 
 void add_to_names(list_t *entry){
 	// first entry

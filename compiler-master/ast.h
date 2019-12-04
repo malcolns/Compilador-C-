@@ -2,10 +2,8 @@
 typedef enum Node_Type {
 	BASIC_NODE,  
 	CONST_NODE,
-	// declarations
 	DECLARATIONS, 
 	DECL_NODE,    
-	// statements
 	STATEMENTS,   
 	IF_NODE,      
 	ELSIF_NODE,    
@@ -14,12 +12,10 @@ typedef enum Node_Type {
 	SIMPLE_NODE,  
 	FUNC_CALL,    
 	CALL_PARAMS,  
-	// expression
 	ARITHM_NODE,  
 	REL_NODE,     
 	EQU_NODE,     
 	REF_NODE,	  
-	// function
 	FUNC_DECLS,   
 	FUNC_DECL,    
 	RET_TYPE,     
@@ -28,37 +24,37 @@ typedef enum Node_Type {
 }Node_Type;
 
 typedef enum Arithm_op{
-	ADD,  // + operator
-	SUB,  // - operator
-	MUL,  // * operator
-	DIV , // / operator
-	DEC, // -- operator
+	ADD,  // + 
+	SUB,  // - 
+	MUL,  // *
+	DIV , // / 
+	DEC, // -- 
 }Arithm_op;
 
 
 typedef enum Rel_op{
-	GREATER,        // > operator
-	LESS,           // < operator
-	GREATER_EQUAL,  // >= operator
-	LESS_EQUAL     // <= operator
+	GREATER,        // > 
+	LESS,           // < 
+	GREATER_EQUAL,  // >=
+	LESS_EQUAL     // <= 
 }Rel_op;
 
 typedef enum Equ_op{
-	EQUAL,    // == operator
-	NOT_EQUAL // != operator
+	EQUAL,    // == 
+	NOT_EQUAL // != 
 }Equ_op;
 
 /* The basic node */
 typedef struct AST_Node{
-	enum Node_Type type; // node type
+	enum Node_Type type; 
 	
-	struct AST_Node *left;  // left child
-	struct AST_Node *right; // right child
+	struct AST_Node *left;  
+	struct AST_Node *right; 
 }AST_Node;
 
 /* Declarations */
 typedef struct AST_Node_Declarations{
-	enum Node_Type type; // node type
+	enum Node_Type type; 
 	
 	// declarations
 	struct AST_Node **declarations;
@@ -66,9 +62,8 @@ typedef struct AST_Node_Declarations{
 }AST_Node_Declarations;
 
 typedef struct AST_Node_Decl{
-	enum Node_Type type; // node type
-	
-	// data type
+	enum Node_Type type; 
+
 	int data_type;
 	
 	// symbol table entries of the variables
@@ -77,9 +72,8 @@ typedef struct AST_Node_Decl{
 }AST_Node_Decl;
 
 typedef struct AST_Node_Const{
-	enum Node_Type type; // node type
+	enum Node_Type type; 
 	
-	// data type
 	int const_type;
 	
 	// constant value
@@ -88,7 +82,7 @@ typedef struct AST_Node_Const{
 
 /* Statements */
 typedef struct AST_Node_Statements{
-	enum Node_Type type; // node type
+	enum Node_Type type; 
 	
 	// statements
 	struct AST_Node **statements;
@@ -96,7 +90,7 @@ typedef struct AST_Node_Statements{
 }AST_Node_Statements;
 
 typedef struct AST_Node_If{
-	enum Node_Type type; // node type
+	enum Node_Type type; 
 	
 	// condition
 	struct AST_Node *condition;

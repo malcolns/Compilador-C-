@@ -11,9 +11,9 @@ int get_result_type(int type_1, int type_2, int op_type){ /* type check and resu
 	switch(op_type){
 
 		case NONE: /* type compatibility only, '1': compatible */
-			// first type INT
+			 
 			if(type_1 == INT_TYPE){
-				// second type INT or CHAR
+				
 				if(type_2 == INT_TYPE){
 					return 1;
 				}
@@ -24,9 +24,9 @@ int get_result_type(int type_1, int type_2, int op_type){ /* type check and resu
 			break;
 		/* ---------------------------------------------------------- */
 		case ARITHM_OP: /* arithmetic operator */
-			// first type INT
+			 
 			if(type_1 == INT_TYPE){
-				// second type INT or CHAR
+				 
 				if(type_2 == INT_TYPE){
 					return INT_TYPE;
 				}
@@ -40,7 +40,7 @@ int get_result_type(int type_1, int type_2, int op_type){ /* type check and resu
 			break;
 
 		case NOT_OP: /* special case of NOTOP */
-			// type INT
+		
 			if(type_1 == INT_TYPE){
 				return INT_TYPE;
 			}
@@ -50,9 +50,9 @@ int get_result_type(int type_1, int type_2, int op_type){ /* type check and resu
 			break;
 		/* ---------------------------------------------------------- */
 		case REL_OP: /* Relational operator */
-			// first type INT
+			 
 			if(type_1 == INT_TYPE){
-				// second type INT, REAL or CHAR
+				 
 				if(type_2 == INT_TYPE){
 					return INT_TYPE;
 				}
@@ -66,9 +66,9 @@ int get_result_type(int type_1, int type_2, int op_type){ /* type check and resu
 			break;
 		/* ---------------------------------------------------------- */
 		case EQU_OP: /* Equality operator */
-			// first type INT
+			 
 			if(type_1 == INT_TYPE){
-				// second type INT or CHAR
+
 				if(type_2 == INT_TYPE){
 					return INT_TYPE;
 				}
@@ -91,7 +91,6 @@ void type_error(int type_1, int type_2, int op_type){ /* print type error */
 
 	fprintf(stderr, "Type conflict between ");
 	
-	/* first type */
 	
 	if(type_1 == INT_TYPE)
 
