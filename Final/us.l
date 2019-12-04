@@ -5,7 +5,7 @@
 	#include <stdlib.h>
 	#include <string.h>
 
-	//#include "symtab.c" // Tabela de Simbolos
+	#include "symtab.h" // Tabela de Simbolos
 
 	#include "us.tab.h"
 
@@ -64,8 +64,17 @@ ICONST	 	{DIGIT}+
 "="				        { return ASSIGN; }
 
 
-{ID}					{ /* insert(yytext, strlen(yytext), UNDEF, lineno); */ }
-{ICONST}   				{ yylval.valor_inteiro = atoi(yytext); return ICONST; }
+{ID}					{ 	
+							insert(yytext, strlen(yytext), UNDEF, lineno); 
+							yylval.item_lista = lookup(yytext);
+							
+							return ID;
+						}
+
+{ICONST}   				{ 
+							yylval.valor_inteiro = atoi(yytext); 
+							return ICONST;
+						}
 
 "\n"			{ lineno += 1; }
 [ \t\r\f]+	    {/*ignora espaçoes em branco*/}
@@ -73,6 +82,8 @@ ICONST	 	{DIGIT}+
 .				{ yyerror("Caractere não reconhecido"); }
 
 %%
+
+/*
 
 void ret_print(char *token_type){
    printf("yytext: %s\ttoken: %s\tlineno: %d\n", yytext, token_type, lineno);
@@ -82,7 +93,7 @@ void yyerror(char *message){
    printf("Error: \"%s\" in line %d. Token = %s\n", message, lineno, yytext);
    exit(1);
 }
-/*
+
 int main(int argc, char *argv[]){
    yyin = fopen(argv[1], "r");
    yylex();

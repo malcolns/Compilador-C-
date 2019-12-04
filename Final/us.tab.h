@@ -81,10 +81,10 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 14 "us.y" /* yacc.c:1909  */
+#line 17 "us.y" /* yacc.c:1909  */
 
     int valor_inteiro;
-    //Tlista* item_lista;
+    list_t* item_lista;
 
 #line 90 "us.tab.h" /* yacc.c:1909  */
 };
