@@ -7,25 +7,36 @@
 	#include <stdio.h>
 	#include <stdlib.h>
 	#include <string.h>
+
 	extern FILE *yyin;
+
 	extern FILE *yyout;
+
 	extern int lineno;
+
 	extern int yylex();
+
 	void yyerror();
 	
 	// for declarations
 	void add_to_names(list_t *entry);
+
 	list_t **names;
+
 	int nc = 0;
 	
 	// for the initializations of arrays
 	void add_to_vals(Value val);
+
 	Value *vals;
+
 	int vc = 0;
 	
 	// for else ifs
 	void add_elseif(AST_Node *elsif);
+
 	AST_Node **elsifs;
+
 	int elseif_count = 0;
 	
 	// for functions
@@ -53,14 +64,11 @@
 }
 
 /* token definition */
-%token<val> CHAR INT FLOAT DOUBLE IF ELSE WHILE FOR CONTINUE BREAK VOID RETURN
-%token<val> ADDOP MULOP DIVOP INCR OROP ANDOP NOTOP EQUOP RELOP
+%token<val> INT IF ELSE WHILE VOID RETURN
+%token<val> ADDOP MULOP OROP DIVOP ANDOP NOTOP EQUOP RELOP
 %token<val> LPAREN RPAREN LBRACK RBRACK LBRACE RBRACE SEMI COMMA ASSIGN REFER
 %token <symtab_item> ID
 %token <val> 	 ICONST
-%token <val>  	 FCONST
-%token <val> 	 CCONST
-%token <val>     STRING
 
 /* precedencies and associativities */
 %left COMMA
@@ -71,7 +79,6 @@
 %left RELOP
 %left ADDOP
 %left MULOP DIVOP
-%right NOTOP INCR REFER MINUS
 %left LPAREN RPAREN LBRACK RBRACK
 
 /* rule (non-terminal) definitions */
@@ -130,10 +137,6 @@ declaration: type { declare = 1; } names { declare = 0; } SEMI
 			if(temp->names[i]->st_type == UNDEF){
 				set_type(temp->names[i]->st_name, temp->data_type, UNDEF);
 			}
-			// pointer
-			else if(temp->names[i]->st_type == POINTER_TYPE){
-				set_type(temp->names[i]->st_name, POINTER_TYPE, temp->data_type);
-			}
 			// array
 			else if(temp->names[i]->st_type == ARRAY_TYPE){
 				set_type(temp->names[i]->st_name, ARRAY_TYPE, temp->data_type);
@@ -143,9 +146,6 @@ declaration: type { declare = 1; } names { declare = 0; } SEMI
 ;
 
 type: INT  		{ $$ = INT_TYPE;   }
-	| CHAR 		{ $$ = CHAR_TYPE;  }
-	| FLOAT 	{ $$ = REAL_TYPE;  }
-	| DOUBLE 	{ $$ = REAL_TYPE;  }
 	| VOID 		{ $$ = VOID_TYPE;  }
 ;
 
@@ -168,11 +168,6 @@ names: names COMMA variable
 ;
 
 variable: ID { $$ = $1; }
-	| pointer ID
-	{
-		$2->st_type = POINTER_TYPE;
-		$$ = $2;
-	}
 	| ID array
 	{
 		if(declare == 1){
@@ -184,10 +179,10 @@ variable: ID { $$ = $1; }
 	}
 ;
 
-pointer: MULOP ; /* for now only single pointers! */
+pointer: MULOP ; 
 
-array: /* for now only one-dimensional arrays */
-	LBRACK expression RBRACK /* can only be used in expressions */
+array: 
+	LBRACK expression RBRACK 
 	{
 		// if declaration then error!
 		if(declare == 1){
@@ -261,10 +256,6 @@ statement:
 	{ 
 		$$ = $1; /* just pass information */
 	}
-	| for_statement
-	{ 
-		$$ = $1; /* just pass information */
-	}
 	| while_statement
 	{
 		$$ = $1; /* just pass information */
@@ -284,27 +275,7 @@ statement:
 	| function_call SEMI
 	{ 
 		$$ = $1; /* just pass information */
-	}
-	| ID INCR SEMI
-	{
-		/* increment */
-		if($2.ival == INC){
-			$$ = new_ast_incr_node($1, 0, 0);
-		}
-		else{
-			$$ = new_ast_incr_node($1, 1, 0);
-		}
-	}
-	| INCR ID SEMI
-	{
-		/* increment */
-		if($1.ival == INC){
-			$$ = new_ast_incr_node($2, 0, 1);
-		}
-		else{
-			$$ = new_ast_incr_node($2, 1, 1);
-		}
-	}
+	}	
 ;
 
 if_statement:
@@ -346,21 +317,6 @@ optional_else:
 	}
 ;
 
-for_statement: FOR LPAREN assigment SEMI expression SEMI ID INCR RPAREN tail
-{
-	/* create increment node*/
-	AST_Node *incr_node;
-	if($8.ival == INC){ /* increment */
-		incr_node = new_ast_incr_node($7, 0, 0);
-	}
-	else{
-		incr_node = new_ast_incr_node($7, 1, 0);
-	}
-
-	$$ = new_ast_for_node($3, $5, incr_node, $10);
-	set_loop_counter($$);
-}
-;
 
 while_statement: WHILE LPAREN expression RPAREN tail
 {
@@ -475,8 +431,6 @@ expression:
 
 constant:
 	ICONST   { $$ = new_ast_const_node(INT_TYPE, $1);  }
-	| FCONST { $$ = new_ast_const_node(REAL_TYPE, $1); }
-	| CCONST { $$ = new_ast_const_node(CHAR_TYPE, $1); }
 ;
 
 assigment: var_ref ASSIGN expression
@@ -690,10 +644,6 @@ return_type:
 	type
 	{
 		$$ = new_ast_ret_type_node($1, 0);
-	}
-	| type pointer
-	{
-		$$ = new_ast_ret_type_node($1, 1);
 	}
 ;
 
