@@ -14,7 +14,7 @@
 	int lineno = 1; // initialize to 1
 
 	void ret_print(char *token_type);
-	void yyerror();
+	void yyerror(char * menssagem);
 
 	/*Para comunicação com os arquivos externos*/
 
@@ -26,7 +26,7 @@ alpha 		[a-zA-Z]
 digit 		[0-9]
 alnum 		{alpha}|{digit}
 
-ID 			{alpha}+{alnum}*
+ID 			{alpha}+
 NUM	    	"0"|[0-9]{digit}*
 
 %%
@@ -89,7 +89,7 @@ NUM	    	"0"|[0-9]{digit}*
 "\n"			{ lineno += 1; }
 [ \t\r\f]+	    /*ignora espaçoes em branco*/
 
-.				{ printf("Caractere não reconhecido"); }
+.				{  void yyerror("LEXICO"); }
 
 %%
 /*
@@ -97,14 +97,13 @@ void ret_print(char *token_type){
 
 	printf("leitura: %s\ttoken: %s\tlineno: %d\n", yytext, token_type, lineno);
 }
+*/
+void yyerror(){
 
-void yyerror(char *message){
-
-	printf("Erro: \"%s\" linha %d. Token = %s\n", message, lineno, yytext);
-
+	printf("ERRO %s: %s LINHA: %d\n", yytext, lineno);
 	exit(1);
 }
-
+/*
 int main(int argc, char *argv[]){
 
 	/*Inicializacao da tabela de simbolos*/

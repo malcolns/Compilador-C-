@@ -8,7 +8,7 @@
     extern FILE *yyout;
     extern int lineno;
     extern int yylex();
-    void yyerror();
+    void yyerror(int a);
 
 %}
 
@@ -165,8 +165,15 @@ atribuicao: variavel ATRIB expressao;
 
 %%
 
-void yyerror ()
+void yyerror (int a)
 {
+    if(a == 0)
+    {
+        printf("ERRO LEXICO: %s LINHA: %d\n", yytext, lineno);
+        exit(1);
+    } 
+    
+
   fprintf(stderr, "Syntax error na linha %d\n", lineno);
   exit(1);
 }
