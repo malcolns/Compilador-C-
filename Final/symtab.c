@@ -3,6 +3,10 @@
 #include <string.h>
 #include "symtab.h"
 
+/*Variavel global para armazenar o escopo atual
+mais facil o acesso para verificação nas funções*/
+int cur_scope = 0;
+
 void init_hash_table(){
 	int i; 
 	hash_table = malloc(HASH_TAM * sizeof(list_t*));
@@ -34,7 +38,7 @@ void insert(char *name, int len, int type, int lineno){
 		l->lines->next = NULL;
 		l->next = hash_table[hashval];
 		hash_table[hashval] = l; 
-		printf("Inserted %s for the first time with linenumber %d!\n", name, lineno); // error checking
+		printf("Insere \t%s pela primeira vez na linha %d!\n", name, lineno); // error checking
 	}
 	/* found in table, so just add line number */
 	else{
@@ -45,7 +49,7 @@ void insert(char *name, int len, int type, int lineno){
 		t->next = (RefList*) malloc(sizeof(RefList));
 		t->next->lineno = lineno;
 		t->next->next = NULL;
-		printf("Found %s again at line %d!\n", name, lineno);
+		printf("Encontrou-se \t%s outra vez na linha %d!\n", name, lineno);
 	}
 }
 
@@ -83,10 +87,10 @@ void symtab_dump(FILE * of){
 		while (l != NULL){ 
 			RefList *t = l->lines;
 			fprintf(of,"%-12s ",l->st_name);
-			if (l->st_type == INT) fprintf(of,"%-7s","int");
+			if (l->st_type == INTE) fprintf(of,"%-7s","int");
 			else if (l->st_type == FUNCTION){
 				fprintf(of,"%-7s %s","function returns ");
-				if (l->inf_type == INT) 		   fprintf(of,"%-7s","int");
+				if (l->inf_type == INTE) 		   fprintf(of,"%-7s","int");
 				else fprintf(of,"%-7s","undef");
 			}
 			else fprintf(of,"%-7s","undef"); // if NDEF or 0

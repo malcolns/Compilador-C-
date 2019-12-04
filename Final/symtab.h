@@ -7,12 +7,10 @@ preferencialmente deve ser um número primo*/
 
 /*Tipos dos Tokens*/
 #define NDEF 0
-#define INT 1
+#define INTE 1
 #define FUNCTION 2
 
-/*Variavel global para armazenar o escopo atual
-mais facil o acesso para verificação nas funções*/
-int cur_scope = 0;
+
 
 /*Estrutura de um parâmetro de uma função*/
 typedef struct Param{

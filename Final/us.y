@@ -10,7 +10,6 @@
     extern int yylex();
     void yyerror();
 
-    //typedef list_t Tlista;
 %}
 
 %union
@@ -21,22 +20,22 @@
 
 /* Definições dos Tokens */
 
-%token <valor_inteiro> INT IF ELSE WHILE BREAK VOID RETURN
-%token <valor_inteiro> ADDOP MULOP DIVOP OROP ANDOP NOTOP EQUOP RELOP
-%token <valor_inteiro> LPAREN RPAREN LBRACK RBRACK LBRACE RBRACE SEMI COMMA ASSIGN
+%token <valor_inteiro> INT IF ELSE WHILE VOID RETURN
+%token <valor_inteiro> ADD SUB MUL DIV OROP ANDOP NOTOP EQUOP EQ DIF GREAT LESS GEQ LESSEQ
+%token <valor_inteiro> LPAREN RPAREN LBRACK RBRACK LKEY RKEY PTVIRG VIRG ATRIB
 %token <item_lista> ID
-%token <valor_inteiro> ICONST
+%token <valor_inteiro> NUM
 
 %left LPAREN RPAREN LBRACK RBRACK
 %right NOTOP INCR REFER
-%left MULOP DIVOP
-%left ADDOP
-%left RELOP
-%left EQUOP
+%left MUL DIV
+%left ADD SUB
+%left DIF GREAT LESS GEQ LESSEQ
+%left EQ
 %left OROP
 %left ANDOP
-%right ASSIGN
-%left COMMA
+%right ATRIB
+%left VIRG
 
 %start programa
 
@@ -45,27 +44,29 @@
 
 /* Inicio -------------------------------------------------------------------------------------- */
 
-programa: declaracoes instrucoes RETURN SEMI funcoes_opcional;
+programa: declaracoes funcoes;
 
 /* Declarações --------------------------------------------------------------------------------- */
 
 declaracoes: declaracoes declaracao | declaracao;
 
-declaracao: tipo nome_var SEMI ;
+declaracao: tipo_NVoid nome_var PTVIRG ;
 
 declaracoes_opcional: declaracoes | /* vazio */;
 
 tipo: INT | VOID;
 
-nome_var: nome_var COMMA variavel | nome_var COMMA inicializarcao | variavel | inicializarcao;
+tipo_NVoid: INT;
+
+nome_var: nome_var VIRG variavel | nome_var VIRG inicializarcao | variavel | inicializarcao;
 
 inicializarcao: variave_inicial | vetor_inicial;
 
-variave_inicial: ID ASSIGN constante;
+variave_inicial: ID ATRIB constante;
 
-vetor_inicial: ID vetor ASSIGN LBRACE valores RBRACE;
+vetor_inicial: ID vetor ATRIB LKEY valores RKEY;
 
-valores : valores COMMA constante | constante;
+valores : valores VIRG constante | constante;
 
 variavel: ID | ID vetor;
 
@@ -77,29 +78,27 @@ funcoes_opcional: funcoes | /* vazio */;
 
 funcoes: funcoes funcao | funcao;
 
-funcao: funcao_cabecalho funcao_bloco;
+funcao: funcao_cabecalho bloco;
 
 funcao_cabecalho: tipo ID LPAREN parametros_opcional RPAREN;
 
-funcao_bloco: LBRACE declaracoes_opcional instucoes_opcional return_opcional RBRACE;
+return_opcional: RETURN expressao PTVIRG | /* vazio */;
 
-return_opcional: RETURN expressao SEMI | /* vazio */;
+parametros_opcional: parametros | VOID | /* vazio */;
 
-parametros_opcional: parametros | /* vazio */;
-
-parametros: parametros COMMA  parametro | parametro;
+parametros: parametros VIRG  parametro | parametro;
 
 parametro: tipo_NVoid variavel_parametro;
 
 variavel_parametro: ID | ID colchetes_parametro | ID LBRACK RBRACK ;
 
-colchetes_parametro: colchetes_parametro LBRACE ICONST RBRACK | LBRACE ICONST RBRACK;
+colchetes_parametro: colchetes_parametro LBRACK NUM RBRACK | LBRACK NUM RBRACK;
 
 funcao_chamada: ID LPAREN parametros_chamada RPAREN;
 
 parametros_chamada: parametro_chamada | /* vazio */;
 
-parametro_chamada: parametro_chamada COMMA expressao | expressao;
+parametro_chamada: parametro_chamada VIRG expressao | expressao;
 
 /* Instruções ---------------------------------------------------------------------------------- */
 
@@ -107,7 +106,7 @@ instrucoes: instrucoes instrucao | instrucao;
 
 instucoes_opcional: instrucoes | /* vazio */;
 
-instrucao: if_instrucao | while_instrucao | atribuicao SEMI | BREAK SEMI | funcao_chamada SEMI;
+instrucao: if_instrucao | while_instrucao | atribuicao PTVIRG | funcao_chamada PTVIRG;
 
 /* IF, ELSE IF, ELSE --------------------------------------------------------------------------- */
 
@@ -129,30 +128,39 @@ while_instrucao: WHILE LPAREN expressao RPAREN bloco ;
 
 /* Escopo -------------------------------------------------------------------------------------- */
 
-bloco: LBRACE instrucoes RBRACE ;
+bloco: LKEY declaracoes_opcional instucoes_opcional return_opcional RKEY ;
 
 /* Expressão ----------------------------------------------------------------------------------- */
 
 expressao:
-    expressao ADDOP expressao |
-    expressao MULOP expressao |
-    expressao DIVOP expressao |
+    expressao ADD expressao |
+    expressao SUB expressao |
+    expressao MUL expressao |
+    expressao DIV expressao |
+
+    expressao EQ expressao |
+    expressao DIF expressao |
+    expressao GREAT expressao |
+    expressao LESS expressao |
+    expressao GEQ expressao |
+    expressao LESSEQ expressao |
+
     expressao OROP expressao |
     expressao ANDOP expressao |
-    NOTOP expressao |
-    expressao EQUOP expressao |
-    expressao RELOP expressao |
+    NOTOP expressao |  
+    
     LPAREN expressao RPAREN |
+
     variavel |
     sinal constante |
     funcao_chamada
 ;
 
-sinal: ADDOP | /* vazio */ ; 
+sinal: SUB | /* vazio */ ; 
 
-constante: ICONST;
+constante: NUM;
 
-atribuicao: variavel ASSIGN expressao; 
+atribuicao: variavel ATRIB expressao; 
 
 
 %%
@@ -165,19 +173,21 @@ void yyerror ()
 
 int main (int argc, char *argv[]){
 
-    // parsing
-    int flag;
-    yyin = fopen(argv[1], "r");
-    flag = yyparse();
-    fclose(yyin);
-    
-    printf("Fim do Parser!!!\n");    
+	// initialize symbol table
+	init_hash_table();
 
+	// parsing
+	int flag;
+	yyin = fopen(argv[1], "r");
+	flag = yyparse();
+	fclose(yyin);
+	
+	printf("Parsing finished!");
+	
 	// symbol table dump
-    /*
 	yyout = fopen("symtab_dump.out", "w");
 	symtab_dump(yyout);
 	fclose(yyout);
-    */
-    return flag;
+	
+	return flag;
 }
