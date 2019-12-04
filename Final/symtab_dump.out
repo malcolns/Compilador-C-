@@ -1,16 +1,23 @@
------------- ------ ------------
-Name         Type   Line Numbers
------------- ------ -------------
-i            undef     7   10   11   12   13   14   16   16   23   24   25   27   29   30   31   31   37   38   39   40   41   41   44   45   46   47   47 
-k            undef     7    8   14   18   23   27   28   29 
-high         undef     6   11   22   25   27 
-t            undef    26   28   30 
-main         undef    35 
-x            undef     7    9   12   13 
-vet          undef     4   40   43   46 
-low          undef     6    8    9   10   22   24 
-minloc       undef     6   27 
-sort         undef    22   43 
-input        undef    40 
-output       undef    46 
-a            undef     6    9   12   13   22   27   28   29   29   30 
+------------ ------ ------ ------------
+Name         Type   Scope  Line Numbers
+------------ ------ ------ ------------
+i            undef    3    37   38   39   40   41   41   44   45   46   47   47 
+i            undef    2    23   24   25   27   29   30   31   31 
+i            undef    1     7   10   11   12   13   14   16   16 
+k            undef    2    23   27   28   29 
+k            undef    1     7    8   14   18 
+high         undef    2    22   25   27 
+high         undef    1     6   11 
+t            undef    2    26   28   30 
+main         undef    3    35 
+x            undef    1     7    9   12   13 
+vet          undef    1     7   40   43   46 
+vet          undef    0     4 
+low          undef    2    22   24 
+low          undef    1     6    8    9   10 
+minloc       undef    1     6   27 
+sort         undef    2    22   43 
+input        undef    3    40 
+output       undef    3    46 
+a            undef    2    22   27   28   29   29   30 
+a            undef    1     6    9   12   13 

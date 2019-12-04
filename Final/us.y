@@ -44,13 +44,13 @@
 
 /* Inicio -------------------------------------------------------------------------------------- */
 
-programa: declaracoes funcoes;
+programa: declaracoes {} funcoes;
 
 /* Declarações --------------------------------------------------------------------------------- */
 
 declaracoes: declaracoes declaracao | declaracao;
 
-declaracao: tipo_NVoid nome_var PTVIRG ;
+declaracao: {declare = 1;} tipo_NVoid nome_var {declare = 0;} PTVIRG ;
 
 declaracoes_opcional: declaracoes | /* vazio */;
 
@@ -78,7 +78,7 @@ funcoes_opcional: funcoes | /* vazio */;
 
 funcoes: funcoes funcao | funcao;
 
-funcao: funcao_cabecalho bloco;
+funcao: {incr_scope();} funcao_cabecalho bloco {/*hide_scope();*/};
 
 funcao_cabecalho: tipo ID LPAREN parametros_opcional RPAREN;
 
@@ -88,7 +88,7 @@ parametros_opcional: parametros | VOID | /* vazio */;
 
 parametros: parametros VIRG  parametro | parametro;
 
-parametro: tipo_NVoid variavel_parametro;
+parametro: {declare = 1;} tipo_NVoid variavel_parametro {declare = 0;};
 
 variavel_parametro: ID | ID colchetes_parametro | ID LBRACK RBRACK ;
 
