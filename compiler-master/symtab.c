@@ -8,10 +8,10 @@
 int cur_scope = 0;
 
 /* flag variable for declaring */
-int declare = 0; // 1: declaring variable, 0: not
+int declare = 0; 
 
 /* flag variable for function declaring */
-int function_decl = 0; // 1: declaring function, 0: not
+int function_decl = 0; 
 
 /* number of messages */
 int num_of_msg = 0;
@@ -57,10 +57,8 @@ void insert(char *name, int len, int type, int lineno){
 	/* variable not yet in table */
 	if (l == NULL){
 
-		/* check if we are declaring */
 		if(declare == 1){
 
-			/* set up entry */
 			l = (list_t*) malloc(sizeof(list_t));
 
 			strncpy(l->st_name, name, len);
@@ -110,28 +108,23 @@ void insert(char *name, int len, int type, int lineno){
 		}
 	}
 
-	/* found in table */
 	else{
 
-		// just add line number
 		if(declare == 0){
 
-			/* find last reference */
 			RefList *t = l->lines;
 
 			while (t->next != NULL) t = t->next;
 			
-			/* add linenumber to reference list */
 			t->next = (RefList*) malloc(sizeof(RefList));
 
 			t->next->lineno = lineno;
 
 			t->next->next = NULL;
 		}
-		/* new entry */
+	
 		else{
-
-			/* same scope - multiple declaration error! */
+			
 			if(l->scope == cur_scope){
 
 				fprintf(stderr, "Declaração multipla de '%s', erro na linha %d\n", name, lineno);
@@ -139,25 +132,23 @@ void insert(char *name, int len, int type, int lineno){
  				exit(1);
 			}
 
-			/* other scope - but function declaration */
+			
 			else if(function_decl == 1){
-
-				/* find last reference */
+				
 				RefList *t = l->lines;
 
 				while (t->next != NULL) t = t->next;
 				
-				/* add linenumber to reference list */
+				
 				t->next = (RefList*) malloc(sizeof(RefList));
 
 				t->next->lineno = lineno;
 
 				t->next->next = NULL;
 			}
-			/* other scope - create new entry */
+		
 			else{
-
-				/* set up entry */
+				
 				l = (list_t*) malloc(sizeof(list_t));
 
 				strncpy(l->st_name, name, len);
@@ -260,28 +251,28 @@ void symtab_dump(FILE * of){  /* dump file */
 
 // Type Functions
 
-void set_type(char *name, int st_type, int inf_type){ // set the type of an entry (declaration)
-	/* lookup entry */
+void set_type(char *name, int st_type, int inf_type){ 
+
 	list_t *l = lookup(name);
 	
-	/* set as "main" type */
+
 	l->st_type = st_type;
 	
-	/* if array, pointer or function */
+	
 	if(inf_type != UNDEF){
 		l->inf_type = inf_type;
 	}
 }
 
-int get_type(char *name){ // get the type of an entry
-	/* lookup entry */
+int get_type(char *name){
+	
 	list_t *l = lookup(name);
 	
-	/* if "simple" type */
+	
 	if(l->st_type == INT_TYPE){
 		return l->st_type;
 	}
-	/* if array, pointer or function */
+	
 	else{
 		return l->inf_type;
 	}
@@ -289,64 +280,59 @@ int get_type(char *name){ // get the type of an entry
 
 // Scope Management Functions
 
-void hide_scope(){ /* hide the current scope */
+void hide_scope(){
 	list_t *l;
 	int i;
-	// printf("Hiding scope \'%d\':\n", cur_scope);
-	/* for all the lists */
+
 	for (i = 0; i < SIZE; i++){
 		if(hash_table[i] != NULL){
 			l = hash_table[i];
-			/* Find the first item that is from another scope */
+			
 			while(l != NULL && l->scope == cur_scope){
-				// printf("Hiding %s..\n", l->st_name);
+				
 				l = l->next;
 			}
-			/* Set the list equal to that item */
+			
 			hash_table[i] = l;
 		}
 	}
 	cur_scope--;
 }
 
-void incr_scope(){ /* go to next scope */
+void incr_scope(){ 
 	cur_scope++;
 }
 
 // Function Declaration and Parameters
 
-Param def_param(int par_type, char *param_name, int passing){ // define parameter
-	Param param; /* Parameter struct */
+Param def_param(int par_type, char *param_name, int passing){ 
+	Param param; 
 	
-	/* set the information */
 	param.par_type = par_type;
 	strcpy(param.param_name, param_name);
 	param.passing = passing;	
 	
-	/* return the structure */
 	return param;
 }
 
-int func_declare(char *name, int ret_type, int num_of_pars, Param *parameters){ // declare function
-	/* lookup entry */
+int func_declare(char *name, int ret_type, int num_of_pars, Param *parameters){ 
+
 	list_t *l = lookup(name);
 	
 	if(l != NULL){
-		/* if type is not defined yet */
+	
 		if(l->st_type == UNDEF){
-			/* entry is of function type */
+
 			l->st_type = FUNCTION_TYPE;
 			
-			/* return type is ret_type */
 			l->inf_type = ret_type;
 			
-			/* parameter stuff */
 			l->num_of_pars = num_of_pars;
 			l->parameters = parameters;
 			
-			return 0; /* success */
+			return 0; 
 		}
-		/* already declared error */
+	
 		else{
 			fprintf(stderr, "Function %s already declared!\n", name);
 			exit(1);
@@ -357,65 +343,56 @@ int func_declare(char *name, int ret_type, int num_of_pars, Param *parameters){ 
 int func_param_check(char *name, int num_of_calls, int** par_types, int *num_of_pars){ // check parameters
 	int i, j, type_1, type_2;
 	
-	/* lookup entry */
 	list_t *l = lookup(name);
 	
-	/* for all function calls */
+
 	for(i = 0 ; i < num_of_calls ; i++){
-		/* check number of parameters */
+	
 		if(l->num_of_pars != num_of_pars[i]){
 			fprintf(stderr, "Function call of %s has wrong num of parameters!\n", name);
 			exit(1);
 		}
-		/* check if parameters are compatible */
+		
 		for(j = 0; j < num_of_pars[i]; j++){
-			/* type of parameter in function declaration */
+		
 			type_1 = l->parameters[j].par_type; 
 			
-			/* type of parameter in function call*/
 			type_2 = par_types[i][j]; 
 			
-			/* check compatibility for function call */
 			get_result_type(type_1, type_2, NONE);
-			/* error occurs automatically in the function */
+			
 		}
 	}
 	
-	return 0; /* success */
+	return 0;
 }
 
 // Revisit Queue Functions
 
-void add_to_queue(list_t *entry, char *name, int type){ /* add to queue */
+void add_to_queue(list_t *entry, char *name, int type){ 
 	revisit_queue *q;
 	
-	/* queue is empty */
 	if(queue == NULL){
-		/* set up entry */
 		q = (revisit_queue*) malloc(sizeof(revisit_queue));
 		q->entry = entry;
 		q->st_name = name;
 		q->revisit_type = type;
 		q->next = NULL;
-		
-		/* additional info */
+
 		if(type == PARAM_CHECK){
 			q->num_of_calls = 0;
 		}
 		else if(type == ASSIGN_CHECK){
 			q->num_of_assigns = 0;
 		}
-		
-		/* q "becomes" the queue */
+
 		queue = q;
 	}
-	/* queue not empty */
+
 	else{
-		/* find last element */
 		q = queue;
 		while(q->next != NULL) q = q->next;
 		
-		/* add element to the end */
 		q->next = (revisit_queue*) malloc(sizeof(revisit_queue));
 		q->next->entry = entry;
 		q->next->st_name = name;
@@ -432,10 +409,9 @@ void add_to_queue(list_t *entry, char *name, int type){ /* add to queue */
 	}		
 }
 
-revisit_queue *search_queue(char *name){ /* search queue */
+revisit_queue *search_queue(char *name){
 	revisit_queue *q;
 	
-	/* search for the entry */
 	q = queue;
 	while( (q != NULL) && (strcmp(q->st_name, name) != 0) ) q = q->next;
 	
@@ -444,45 +420,39 @@ revisit_queue *search_queue(char *name){ /* search queue */
 
 revisit_queue *search_prev_queue(char *name){	
 	revisit_queue *q;
-	
-	/* queue is empty */
+
 	if(queue == NULL){
 		return NULL;
 	}	
-	
-	/* special case - first entry */
+
 	if( strcmp(queue->st_name, name) == 0 ){
 		return NULL;
 	}
 	
-	/* search for the entry */
 	q = queue;
 	while( (q != NULL) && (strcmp(q->next->st_name, name) != 0) ) q = q->next;
 	
 	return q;
 }
 
-int revisit(char *name){ /* revisit entry by also removing it from queue */
+int revisit(char *name){ 
 	int i, type1, type2;
 
 	revisit_queue *q = search_queue(name);
 	revisit_queue *q2;
 	
 	if(q == NULL){
-		return -1; // no entry
+		return -1; 
 	}
 	
-	/* revisit entry depending on the type */
 	switch(q->revisit_type){
 		case PARAM_CHECK:			
-			/* run parameter check */
 			if(!func_param_check(name, q->num_of_calls, q->par_types, q->num_of_pars)){
 				printf("Successful Parameter Check of %s\n", name);
 			}
 			
-			/* remove entry by making it point to it's next */
 			q2 = search_prev_queue(name);
-			if(q2 == NULL){ /* special case: first entry */
+			if(q2 == NULL){ 
 				queue = queue->next;
 			}
 			else{
@@ -492,22 +462,21 @@ int revisit(char *name){ /* revisit entry by also removing it from queue */
 			break;
 		case ASSIGN_CHECK:
 			
-			/* run assignment check for each assignment */
 			type1 = get_type(q->entry->st_name);
 			for(i = 0; i < q->num_of_assigns; i++){
 				type2 = expression_data_type(q->nodes[i]);
 				
-				/* perform assignment check */
+				
 				get_result_type(
-					type1,   /*  variable datatype  */
-					type2,   /* expression datatype */
-					NONE  /* checking compatibility only (no operator) */
+					type1,  
+					type2,   
+					NONE  
 				);
 			}
 		
-			/* remove entry by making it point to it's next */
+
 			q2 = search_prev_queue(name);
-			if(q2 == NULL){ /* special case: first entry */
+			if(q2 == NULL){ 
 				queue = queue->next;
 			}
 			else{
@@ -518,7 +487,7 @@ int revisit(char *name){ /* revisit entry by also removing it from queue */
 		/* ... */
 	}
 	
-	return 0; // success
+	return 0; 
 }
 
 void revisit_dump(FILE *of){
@@ -539,7 +508,6 @@ void revisit_dump(FILE *of){
   			fprintf(of,"%s","Assignment Check ");
   			fprintf(of,"for %d assignments",q->num_of_assigns);
 		}
-		// more later on
 		fprintf(of, "\n");
   		q = q->next;	
 	}
@@ -548,19 +516,17 @@ void revisit_dump(FILE *of){
 
 /* String Messages */
 void add_to_str_messages(char *str){
-	/* manage space for strings */
+	
 	if(num_of_msg == 0){
 		str_messages = (char**) malloc(1*sizeof(char*));
 	}
 	else{
 		str_messages = (char**) realloc(str_messages, (num_of_msg + 1)*sizeof(char*));
 	}
-	/* allocate space for the string */
+
 	str_messages[num_of_msg] = (char*) malloc((strlen(str) + 1) * sizeof(char));
-	
-	/* copy string */
+
 	strcpy(str_messages[num_of_msg], str);
-	
-	/* increase counter */
+
 	num_of_msg++;
 }

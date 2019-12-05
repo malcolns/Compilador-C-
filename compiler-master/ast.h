@@ -24,262 +24,281 @@ typedef enum Node_Type {
 }Node_Type;
 
 typedef enum Arithm_op{
+
 	ADD,  // + 
+
 	SUB,  // - 
+
 	MUL,  // *
+
 	DIV , // / 
+
 	DEC, // -- 
+	
 }Arithm_op;
 
 
 typedef enum Rel_op{
+
 	GREATER,        // > 
+
 	LESS,           // < 
+
 	GREATER_EQUAL,  // >=
+
 	LESS_EQUAL     // <= 
+
 }Rel_op;
 
 typedef enum Equ_op{
+
 	EQUAL,    // == 
+
 	NOT_EQUAL // != 
+
 }Equ_op;
 
-/* The basic node */
 typedef struct AST_Node{
+
 	enum Node_Type type; 
 	
 	struct AST_Node *left;  
+
 	struct AST_Node *right; 
+
 }AST_Node;
 
-/* Declarations */
 typedef struct AST_Node_Declarations{
+
 	enum Node_Type type; 
-	
-	// declarations
+
 	struct AST_Node **declarations;
+
 	int declaration_count;
+
 }AST_Node_Declarations;
 
 typedef struct AST_Node_Decl{
+
 	enum Node_Type type; 
 
 	int data_type;
 	
-	// symbol table entries of the variables
 	list_t **names;
+
 	int names_count;
+
 }AST_Node_Decl;
 
 typedef struct AST_Node_Const{
+
 	enum Node_Type type; 
 	
 	int const_type;
 	
-	// constant value
 	Value val;
+
 }AST_Node_Const;
 
-/* Statements */
 typedef struct AST_Node_Statements{
+
 	enum Node_Type type; 
 	
-	// statements
 	struct AST_Node **statements;
+
 	int statement_count;
+
 }AST_Node_Statements;
 
 typedef struct AST_Node_If{
+
 	enum Node_Type type; 
 	
-	// condition
 	struct AST_Node *condition;
 	
-	// if branch
 	struct AST_Node *if_branch;
 	
-	// else if branches
 	struct AST_Node **elsif_branches;
+
 	int elseif_count;
 	
-	// else branch
 	struct AST_Node *else_branch;
+
 }AST_Node_If;
 
 typedef struct AST_Node_Elsif{
-	enum Node_Type type; // node type
+
+	enum Node_Type type;
 	
-	// condition
 	struct AST_Node *condition;
 	
-	// branch
 	struct AST_Node *elsif_branch;
+
 }AST_Node_Elsif;
 
 
 typedef struct AST_Node_While{
-	enum Node_Type type; // node type
+
+	enum Node_Type type;
 	
-	// condition
 	struct AST_Node *condition;
-	
-	// branch
+
 	struct AST_Node *while_branch;
+
 }AST_Node_While;
 
 typedef struct AST_Node_Assign{
-	enum Node_Type type; // node type
+
+	enum Node_Type type; 
 	
-	// symbol table entry
 	list_t *entry;
 	
-	// reference or not
-	int ref; // 0: not reference, 1: reference
+	int ref;
 	
-	// assignment value
 	struct AST_Node *assign_val;
+
 }AST_Node_Assign;
 
 typedef struct AST_Node_Simple{
-	enum Node_Type type; // node type
+
+	enum Node_Type type; 
 	
-	// continue: '0', break: '1'
 	int statement_type;
+
 }AST_Node_Simple;
 
 typedef struct AST_Node_Incr{
-	enum Node_Type type; // node type
+
+	enum Node_Type type; 
 	
-	// identifier
 	list_t *entry;
 	
-	// increment or decrement
-	int incr_type; // 0: increment, 1: decrement
+	int incr_type;
 	
-	// post- or prefix
-	int pf_type; // 0: postfix, 1: prefix
+	int pf_type;
+
 }AST_Node_Incr;
 
 typedef struct AST_Node_Func_Call{
-	enum Node_Type type; // node type
+
+	enum Node_Type type;
 	
-	// function identifier
 	list_t *entry;
 	
-	/* register assignment stuff */
 	int g_index;
 	
-	// call parameters
 	AST_Node **params;
+
 	int num_of_pars;
+
 }AST_Node_Func_Call;
 
 typedef struct AST_Node_Call_Params{
-	enum Node_Type type; // node type
-	
-	// call parameters
+
+	enum Node_Type type;
+
 	AST_Node **params;
+
 	int num_of_pars;
+
 }AST_Node_Call_Params;
 
-/* Expressions */
+
 typedef struct AST_Node_Arithm{
-	enum Node_Type type; // node type
+
+	enum Node_Type type; 
+
+	struct AST_Node *left;  
+
+	struct AST_Node *right; 
 	
-	struct AST_Node *left;  // left child
-	struct AST_Node *right; // right child
-	
-	// data type of result
 	int data_type;
 	
-	// operator
 	enum Arithm_op op;
 	
-	/* register assignment stuff */
 	int g_index;
 }AST_Node_Arithm;
 
 typedef struct AST_Node_Rel{
-	enum Node_Type type; // node type
+
+	enum Node_Type type; 
 	
-	struct AST_Node *left;  // left child
-	struct AST_Node *right; // right child
-	
-	// data type of result
+	struct AST_Node *left;  
+
+	struct AST_Node *right; 
+
 	int data_type;
 	
-	// operator
 	enum Rel_op op;
 	
-	/* register assignment stuff */
 	int g_index;
 }AST_Node_Rel;
 
 typedef struct AST_Node_Equ{
-	enum Node_Type type; // node type
+	enum Node_Type type; 
 	
-	struct AST_Node *left;  // left child
-	struct AST_Node *right; // right child
+	struct AST_Node *left;  
 	
-	// data type of result
+	struct AST_Node *right; 
+
 	int data_type;
-	
-	// operator
+
 	enum Equ_op op;
 	
-	/* register assignment stuff */
 	int g_index;
+
 }AST_Node_Equ;
 
 typedef struct AST_Node_Ref{
-	enum Node_Type type; // node type
+
+	enum Node_Type type; 
 	
-	// symbol table entry
 	list_t *entry;
 	
-	// reference or not
-	int ref; // 0: not reference, 1: reference
+	int ref;
+
 }AST_Node_Ref;
 
 /* Functions */
 typedef struct AST_Node_Func_Declarations{
-	enum Node_Type type; // node type
-	
-	// declarations
+
+	enum Node_Type type; 
+
 	struct AST_Node **func_declarations;
+
 	int func_declaration_count;
+	
 }AST_Node_Func_Declarations;
 
 typedef struct AST_Node_Func_Decl{
-	enum Node_Type type; // node type
+
+	enum Node_Type type;
 	
-	// return type
 	int ret_type;
 	
-	// is pointer or not
-	int pointer; // 0: not pointer, 1: pointer
+	int pointer; 
 	
-	// symbol table entry
 	list_t *entry;
-	
-	// declarations, statements and return
+
 	struct AST_Node *declarations;
+
 	struct AST_Node *statements;
+
 	struct AST_Node *return_node;
+
 }AST_Node_Func_Decl;
 
 typedef struct AST_Node_Ret_Type{
-	enum Node_Type type; // node type
+	enum Node_Type type; 
 	
-	// return type
 	int ret_type;
 	
-	// is pointer or not
-	int pointer; // 0: not pointer, 1: pointer
+	int pointer;
+
 }AST_Node_Ret_Type;
 
 typedef struct AST_Node_Decl_Params{
-	enum Node_Type type; // node type
+	enum Node_Type type; 
 	
 	// parameters
 	Param *parameters;
@@ -287,12 +306,10 @@ typedef struct AST_Node_Decl_Params{
 }AST_Node_Decl_Params;
 
 typedef struct AST_Node_Return{
-	enum Node_Type type; // node type
+	enum Node_Type type; 
 	
-	// return type
 	int ret_type;
 	
-	// return value
 	struct AST_Node *ret_val;
 }AST_Node_Return;
 
@@ -300,8 +317,6 @@ typedef struct AST_Node_Return{
 static AST_Node* main_decl_tree; /* main function's declarations AST Tree */
 static AST_Node* main_func_tree; /* main function's statements AST Tree */
 static AST_Node* opt_func_tree; /* optional functions AST Tree */
-
-/* ------------------AST NODE MANAGEMENT-------------------- */
 
 /* The basic node */
 AST_Node *new_ast_node(Node_Type type, AST_Node *left, AST_Node *right); 	 // simple nodes
@@ -340,4 +355,4 @@ AST_Node *new_ast_return_node(int ret_type, AST_Node *ret_val);				 // function 
 
 /* Tree Traversal */
 void ast_print_node(AST_Node *node);	// print information of node
-void ast_traversal(AST_Node *node);		// tree traversal (for testing right now)
+void ast_traversal(AST_Node *node);		// percorre a arvore
