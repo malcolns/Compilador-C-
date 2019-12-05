@@ -11,7 +11,8 @@
 	extern FILE *yyin;
 
 	extern FILE *yyout;
-
+	
+	extern char * yytext;
 	extern int lineno;
 
 	extern int yylex();
@@ -64,9 +65,9 @@
 }
 
 /* token definition */
-%token<val> INT IF ELSE WHILE VOID RETURN CONTINUE BREAK MINUS STRING
+%token<val> INT IF ELSE WHILE VOID RETURN
 %token<val> ADDOP MULOP OROP DIVOP ANDOP NOTOP EQUOP RELOP
-%token<val> LPAREN RPAREN LBRACK RBRACK LBRACE RBRACE SEMI COMMA ASSIGN REFER
+%token<val> LPAREN RPAREN LBRACK RBRACK LBRACE RBRACE SEMI COMMA ASSIGN
 %token <symtab_item> ID
 %token <val> 	 ICONST
 
@@ -89,7 +90,7 @@
 %type <array_size> array
 %type <symtab_item> init var_init array_init
 %type <node> constant
-%type <node> expression var_ref
+%type <node> expression
 %type <node> statement assigment
 %type <node> statements tail
 %type <node> if_statement else_if optional_else
@@ -105,9 +106,9 @@
 %%
 
 program: 
-	declarations { main_decl_tree = $1; ast_traversal($1); }
-	statements   { main_func_tree = $3; ast_traversal($3); }
-	RETURN SEMI functions_optional { opt_func_tree = $7; ast_traversal($7); }
+	declaration { main_decl_tree = $1; ast_traversal($1); }
+	/*statements   { main_func_tree = $3; ast_traversal($3); }
+	RETURN SEMI*/ functions { opt_func_tree = $3; ast_traversal($3); }
 ;
 
 /* declarations */
@@ -263,14 +264,6 @@ statement:
 	{
 		$$ = $1; /* just pass information */
 	}
-	| CONTINUE SEMI
-	{ 
-		$$ = new_ast_simple_node(0);
-	}
-	| BREAK SEMI
-	{ 
-		$$ = new_ast_simple_node(1);
-	}
 	| function_call SEMI
 	{ 
 		$$ = $1; /* just pass information */
@@ -353,33 +346,9 @@ expression:
 	{
 		$$ = $2; /* just pass information */
 	}
-	| var_ref
-	{ 
-		$$ = $1; /* just pass information */
-	}
 	| constant
 	{
 		$$ = $1; /* no sign */
-	}
-	| ADDOP constant %prec MINUS
-	{
-		/* plus sign error */
-		if($1.ival == ADD){
-			fprintf(stderr, "Error having plus as a sign!\n");
-			exit(1);
-		}
-		else{
-			AST_Node_Const *temp = (AST_Node_Const*) $2;
-		
-			/* inverse value depending on the constant type */
-			switch(temp->const_type){
-				case INT_TYPE:
-					temp->val.ival *= -1;
-					break;
-			}
-			
-			$$ = (AST_Node*) temp;
-		}
 	}
 	| function_call
 	{
@@ -391,7 +360,7 @@ constant:
 	ICONST   { $$ = new_ast_const_node(INT_TYPE, $1);  }
 ;
 
-assigment: var_ref ASSIGN expression
+assigment: variable ASSIGN expression
 {
 	AST_Node_Ref *temp = (AST_Node_Ref*) $1;
 	$$ = new_ast_assign_node(temp->entry, temp->ref, $3);
@@ -439,17 +408,13 @@ assigment: var_ref ASSIGN expression
 		);
 	}
 }
+|variable ASSIGN variable
+{
+	$1 = $3;
+}
+
 ;
 
-var_ref: variable
-	{
-		$$ = new_ast_ref_node($1, 0); /* no reference */
-	}
-	| REFER variable
-	{
-		$$ = new_ast_ref_node($2, 1); /* reference */
-	}
-;
 
 function_call: ID LPAREN call_params RPAREN
 {
@@ -512,11 +477,6 @@ call_params:
 	call_param
 	{
 		$$ = $1;
-	}
-	| STRING
-	{
-		AST_Node *temp = new_ast_const_node(STR_TYPE, $1);
-		$$ = new_ast_call_params_node(NULL, 0, temp);
 	}
 	| /* empty */
 	{
@@ -684,7 +644,7 @@ return_optional:
 
 void yyerror ()
 {
-  fprintf(stderr, "Syntax error at line %d\n", lineno);
+  fprintf(stderr, "Syntax error at line %d %s\n", lineno, yytext);
   exit(1);
 }
 

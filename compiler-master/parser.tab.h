@@ -1,9 +1,8 @@
-/* A Bison parser, made by GNU Bison 3.4.1.  */
+/* A Bison parser, made by GNU Bison 3.0.4.  */
 
 /* Bison interface for Yacc-like parsers in C
 
-   Copyright (C) 1984, 1989-1990, 2000-2015, 2018-2019 Free Software Foundation,
-   Inc.
+   Copyright (C) 1984, 1989-1990, 2000-2015 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -31,9 +30,6 @@
    This special exception was added by the Free Software Foundation in
    version 2.2 of Bison.  */
 
-/* Undocumented macros, especially those whose name start with YY_,
-   are private implementation details.  Do not rely on them.  */
-
 #ifndef YY_YY_PARSER_TAB_H_INCLUDED
 # define YY_YY_PARSER_TAB_H_INCLUDED
 /* Debug traces.  */
@@ -55,38 +51,34 @@ extern int yydebug;
     WHILE = 261,
     VOID = 262,
     RETURN = 263,
-    CONTINUE = 264,
-    BREAK = 265,
-    MINUS = 266,
-    STRING = 267,
-    ADDOP = 268,
-    MULOP = 269,
-    OROP = 270,
-    DIVOP = 271,
-    ANDOP = 272,
-    NOTOP = 273,
-    EQUOP = 274,
-    RELOP = 275,
-    LPAREN = 276,
-    RPAREN = 277,
-    LBRACK = 278,
-    RBRACK = 279,
-    LBRACE = 280,
-    RBRACE = 281,
-    SEMI = 282,
-    COMMA = 283,
-    ASSIGN = 284,
-    REFER = 285,
-    ID = 286,
-    ICONST = 287
+    ADDOP = 264,
+    MULOP = 265,
+    OROP = 266,
+    DIVOP = 267,
+    ANDOP = 268,
+    NOTOP = 269,
+    EQUOP = 270,
+    RELOP = 271,
+    LPAREN = 272,
+    RPAREN = 273,
+    LBRACK = 274,
+    RBRACK = 275,
+    LBRACE = 276,
+    RBRACE = 277,
+    SEMI = 278,
+    COMMA = 279,
+    ASSIGN = 280,
+    ID = 281,
+    ICONST = 282
   };
 #endif
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
+
 union YYSTYPE
 {
-#line 47 "parser.y"
+#line 48 "parser.y" /* yacc.c:1909  */
 
 	// different types of values
 	Value val;   
@@ -105,9 +97,9 @@ union YYSTYPE
 	// for parameters
 	Param par;
 
-#line 109 "parser.tab.h"
-
+#line 101 "parser.tab.h" /* yacc.c:1909  */
 };
+
 typedef union YYSTYPE YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1
