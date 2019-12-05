@@ -6,7 +6,6 @@
 	#include <stdio.h>
 	#include <stdlib.h>
 	#include <string.h>
-	#include "aux.c"
 
 	extern FILE *yyin;
 
@@ -15,6 +14,8 @@
 	extern int lineno;
 
 	extern int yylex();
+
+	void yyerror(char const *s);
 
 	//void yyerror(char const *s);
 	
@@ -676,6 +677,13 @@ return_optional:
 ;
 
 %%
+
+void yyerror(char const *s){
+
+	fprintf(stderr, "%s, in line %d\n", s, lineno);
+
+	exit(1);
+}
 
 void add_to_names(list_t *entry){
 	// first entry

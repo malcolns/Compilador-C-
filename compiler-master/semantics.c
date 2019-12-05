@@ -6,6 +6,8 @@
 
 extern int lineno;
 
+extern char* yytext;
+
 int get_result_type(int type_1, int type_2, int op_type){ /* type check and result type */
 
 	switch(op_type){
@@ -154,7 +156,7 @@ void type_error(int type_1, int type_2, int op_type){ /* print type error */
 	}
 	
 	/* line */
-	fprintf(stderr, " in line %d\n", lineno);
+	fprintf(stderr, ", in line %d\n", lineno);
 	
 	exit(1);
 }

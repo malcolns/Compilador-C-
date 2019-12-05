@@ -13,7 +13,7 @@
 	
 	int lineno = 1;
 	void ret_print(char *token_type);
-	//void yyerror(char const *s);
+	void yyerror(char const *s);
 %}
 
 %x COMMENT
@@ -78,7 +78,7 @@ ICONST		"0"|[0-9]{digit}*
 "\n"			{ lineno += 1; }
 [ \t\r\f]+		
 
-.				{ yyerror("LEXICO"); }
+.				{ yyerror("lexycal error"); }
 
 %%
 
