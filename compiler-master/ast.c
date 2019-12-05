@@ -2,10 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-/* flag variable that shows revisit in assignment expression */
 int cont_revisit = 0; // 1: contains revisit, 0: not
 
-/* ------------------AST NODE MANAGEMENT-------------------- */
 /* The basic node */
 AST_Node *new_ast_node(Node_Type type, AST_Node *left, AST_Node *right){
 	// allocate memory
@@ -45,7 +43,6 @@ AST_Node *new_declarations_node(AST_Node **declarations, int declaration_count, 
 	v->declarations = declarations;
 	v->declaration_count = declaration_count;
 	
-	// return type-casted result
 	return (struct AST_Node *) v;
 }
 
@@ -59,7 +56,6 @@ AST_Node *new_ast_decl_node(int data_type, list_t **names, int names_count){
 	v->names = names;
 	v->names_count = names_count;
 	
-	// return type-casted result
 	return (struct AST_Node *) v;
 }
 
@@ -71,8 +67,7 @@ AST_Node *new_ast_const_node(int const_type, Value val){
 	v->type = CONST_NODE;
 	v->const_type = const_type;
 	v->val = val;
-	
-	// return type-casted result
+
 	return (struct AST_Node *) v;
 }
 
@@ -101,8 +96,7 @@ AST_Node *new_statements_node(AST_Node **statements, int statement_count, AST_No
 	// set entries
 	v->statements = statements;
 	v->statement_count = statement_count;
-	
-	// return type-casted result
+
 	return (struct AST_Node *) v;
 }
 
@@ -119,7 +113,6 @@ AST_Node *new_ast_if_node(AST_Node *condition, AST_Node *if_branch, AST_Node **e
 	v->elseif_count = elseif_count;
 	v->else_branch = else_branch;
 	
-	// return type-casted result
 	return (struct AST_Node *) v;
 }
 
@@ -131,8 +124,7 @@ AST_Node *new_ast_elsif_node(AST_Node *condition, AST_Node *elsif_branch){
 	v->type = ELSIF_NODE;
 	v->condition = condition;
 	v->elsif_branch = elsif_branch;
-	
-	// return type-casted result
+
 	return (struct AST_Node *) v;
 }
 
@@ -144,8 +136,7 @@ AST_Node *new_ast_while_node(AST_Node *condition, AST_Node *while_branch){
 	v->type = WHILE_NODE;
 	v->condition = condition;
 	v->while_branch = while_branch;
-	
-	// return type-casted result
+
 	return (struct AST_Node *) v;
 }
 
@@ -158,8 +149,7 @@ AST_Node *new_ast_assign_node(list_t *entry, int ref, AST_Node *assign_val){
 	v->entry = entry;
 	v->ref = ref;
 	v->assign_val = assign_val;
-	
-	// return type-casted result
+
 	return (struct AST_Node *) v;
 }
 
@@ -170,8 +160,7 @@ AST_Node *new_ast_simple_node(int statement_type){
 	// set entries
 	v->type = SIMPLE_NODE;
 	v->statement_type = statement_type;
-	
-	// return type-casted result
+
 	return (struct AST_Node *) v;
 }
 
@@ -184,8 +173,7 @@ AST_Node *new_ast_func_call_node(list_t *entry, AST_Node **params, int num_of_pa
 	v->entry = entry;
 	v->params = params;
 	v->num_of_pars = num_of_pars;
-	
-	// return type-casted result
+
 	return (struct AST_Node *) v;
 }
 
@@ -212,8 +200,7 @@ AST_Node *new_ast_call_params_node(AST_Node **params, int num_of_pars, AST_Node 
 	// set entries
 	v->params = params;
 	v->num_of_pars = num_of_pars;
-	
-	// return type-casted result
+
 	return (struct AST_Node *) v;
 }
 
@@ -716,6 +703,7 @@ void ast_traversal(AST_Node *node){
 	}
 	/* while case */
 	else if(node->type == WHILE_NODE){
+
 		AST_Node_While *temp_while = (struct AST_Node_While *) node;
 		ast_print_node(node);
 		printf("Condition:\n");
