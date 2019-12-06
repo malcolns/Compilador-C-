@@ -85,7 +85,7 @@
 %type <array_size> array
 %type <symtab_item> init var_init array_init
 %type <node> constant
-%type <node> expression
+%type <node> expression var_ref
 %type <node> statement assigment
 %type <node> statements tail
 %type <node> if_statement else_if optional_else
@@ -337,39 +337,21 @@ expression:
 	{
 		$$ = $2; 
 	}
-	| var_ref
-	{ 
-		$$ = $1; /* just pass information */
-	}
 	| constant
 	{
 		$$ = $1; 
-	}
-	| ADDOP constant %prec MINUS
-	{
-		/* plus sign error */
-		if($1.ival == ADD){
-			fprintf(stderr, "Error having plus as a sign!\n");
-			exit(1);
-		}
-		else{
-			AST_Node_Const *temp = (AST_Node_Const*) $2;
-		
-			/* inverse value depending on the constant type */
-			switch(temp->const_type){
-				case INT_TYPE:
-					temp->val.ival *= -1;
-					break;
-			}
-			
-			$$ = (AST_Node*) temp;
-		}
 	}
 	| function_call
 	{
 		$$ = $1;
 	}
+	| var_ref
+	{
+		$$ = $1;
+	}
 ;
+
+var_ref: variable {$$ = new_ast_ref_node($1,0);};
 
 constant:
 	ICONST   { $$ = new_ast_const_node(INT_TYPE, $1);  }
@@ -418,10 +400,6 @@ assigment: variable ASSIGN expression
 			NONE  /* checking compatibility only (no operator) */
 		);
 	}
-}
-|variable ASSIGN variable
-{
-	$1 = $3;
 }
 
 ;
@@ -640,7 +618,7 @@ return_optional:
 
 %%
 
-void yyerror ()
+void yyerror (char const *s)
 {
   fprintf(stderr, "Syntax error at line %d %s\n", lineno, yytext);
   exit(1);

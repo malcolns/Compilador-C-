@@ -14,7 +14,7 @@
 	int lineno = 1; // initialize to 1
 
 	void ret_print(char *token_type);
-	void yyerror(char * menssagem);
+	void yyerror(int a);
 
 	/*Para comunicação com os arquivos externos*/
 
@@ -89,7 +89,7 @@ NUM	    	"0"|[0-9]{digit}*
 "\n"			{ lineno += 1; }
 [ \t\r\f]+	    /*ignora espaçoes em branco*/
 
-.				{  void yyerror("LEXICO"); }
+.				{  yyerror(0); }
 
 %%
 /*
@@ -97,12 +97,12 @@ void ret_print(char *token_type){
 
 	printf("leitura: %s\ttoken: %s\tlineno: %d\n", yytext, token_type, lineno);
 }
-*/
+
 void yyerror(){
 
 	printf("ERRO %s: %s LINHA: %d\n", yytext, lineno);
 	exit(1);
-}
+}*/
 /*
 int main(int argc, char *argv[]){
 
